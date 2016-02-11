@@ -15,6 +15,7 @@
 		8FB36B351C6D0FAD007A780D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8FB36B331C6D0FAD007A780D /* LaunchScreen.storyboard */; };
 		8FB36B401C6D0FAE007A780D /* XmazonTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FB36B3F1C6D0FAE007A780D /* XmazonTests.m */; };
 		8FB36B4B1C6D0FAE007A780D /* XmazonUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FB36B4A1C6D0FAE007A780D /* XmazonUITests.m */; };
+		8FB36B5A1C6D1353007A780D /* Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FB36B591C6D1353007A780D /* Constants.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,8 @@
 		8FB36B461C6D0FAE007A780D /* XmazonUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = XmazonUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8FB36B4A1C6D0FAE007A780D /* XmazonUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XmazonUITests.m; sourceTree = "<group>"; };
 		8FB36B4C1C6D0FAE007A780D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8FB36B581C6D1339007A780D /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
+		8FB36B591C6D1353007A780D /* Constants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Constants.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +113,8 @@
 				8FB36B331C6D0FAD007A780D /* LaunchScreen.storyboard */,
 				8FB36B361C6D0FAD007A780D /* Info.plist */,
 				8FB36B251C6D0FAD007A780D /* Supporting Files */,
+				8FB36B581C6D1339007A780D /* Constants.h */,
+				8FB36B591C6D1353007A780D /* Constants.m */,
 			);
 			path = Xmazon;
 			sourceTree = "<group>";
@@ -276,6 +281,7 @@
 				8FB36B2D1C6D0FAD007A780D /* ViewController.m in Sources */,
 				8FB36B2A1C6D0FAD007A780D /* AppDelegate.m in Sources */,
 				8FB36B271C6D0FAD007A780D /* main.m in Sources */,
+				8FB36B5A1C6D1353007A780D /* Constants.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -501,6 +507,7 @@
 				8FB36B511C6D0FAE007A780D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8FB36B521C6D0FAE007A780D /* Build configuration list for PBXNativeTarget "XmazonTests" */ = {
 			isa = XCConfigurationList;
@@ -509,6 +516,7 @@
 				8FB36B541C6D0FAE007A780D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8FB36B551C6D0FAE007A780D /* Build configuration list for PBXNativeTarget "XmazonUITests" */ = {
 			isa = XCConfigurationList;
@@ -517,6 +525,7 @@
 				8FB36B571C6D0FAE007A780D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
