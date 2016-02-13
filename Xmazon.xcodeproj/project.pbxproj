@@ -15,6 +15,8 @@
 		8FB36B4B1C6D0FAE007A780D /* XmazonUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FB36B4A1C6D0FAE007A780D /* XmazonUITests.m */; };
 		8FB36B5A1C6D1353007A780D /* Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FB36B591C6D1353007A780D /* Constants.m */; };
 		8FFFF3B41C6F43BB00FE4A62 /* API.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FFFF3B31C6F43BB00FE4A62 /* API.m */; };
+		8FFFF3B81C6F909900FE4A62 /* InscriptionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FFFF3B61C6F909900FE4A62 /* InscriptionViewController.m */; };
+		8FFFF3B91C6F909900FE4A62 /* InscriptionViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8FFFF3B71C6F909900FE4A62 /* InscriptionViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +54,9 @@
 		8FB36B591C6D1353007A780D /* Constants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Constants.m; sourceTree = "<group>"; };
 		8FFFF3B21C6F43BB00FE4A62 /* API.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = API.h; sourceTree = "<group>"; };
 		8FFFF3B31C6F43BB00FE4A62 /* API.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = API.m; sourceTree = "<group>"; };
+		8FFFF3B51C6F909900FE4A62 /* InscriptionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InscriptionViewController.h; sourceTree = "<group>"; };
+		8FFFF3B61C6F909900FE4A62 /* InscriptionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InscriptionViewController.m; sourceTree = "<group>"; };
+		8FFFF3B71C6F909900FE4A62 /* InscriptionViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = InscriptionViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +117,9 @@
 				8FB36B591C6D1353007A780D /* Constants.m */,
 				8FFFF3B21C6F43BB00FE4A62 /* API.h */,
 				8FFFF3B31C6F43BB00FE4A62 /* API.m */,
+				8FFFF3B51C6F909900FE4A62 /* InscriptionViewController.h */,
+				8FFFF3B61C6F909900FE4A62 /* InscriptionViewController.m */,
+				8FFFF3B71C6F909900FE4A62 /* InscriptionViewController.xib */,
 			);
 			path = Xmazon;
 			sourceTree = "<group>";
@@ -248,6 +256,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8FFFF3B91C6F909900FE4A62 /* InscriptionViewController.xib in Resources */,
 				8FB36B351C6D0FAD007A780D /* LaunchScreen.storyboard in Resources */,
 				8FB36B321C6D0FAD007A780D /* Assets.xcassets in Resources */,
 			);
@@ -274,6 +283,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8FFFF3B81C6F909900FE4A62 /* InscriptionViewController.m in Sources */,
 				8FB36B2A1C6D0FAD007A780D /* AppDelegate.m in Sources */,
 				8FB36B271C6D0FAD007A780D /* main.m in Sources */,
 				8FFFF3B41C6F43BB00FE4A62 /* API.m in Sources */,

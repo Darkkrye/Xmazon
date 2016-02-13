@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "Constants.h"
 
 @interface API : NSObject
@@ -14,6 +15,6 @@
 + (BOOL) getAppToken;
 + (BOOL) getUserToken;
 
-+ (BOOL) subscribeUser;
++ (BOOL) subscribeUserWithEmail:(NSString*)pEmail andPassword:(NSString*)pPassword andFirstName:(NSString*)pFirstName andLastName:(NSString*)pLastName;
 
 @end
