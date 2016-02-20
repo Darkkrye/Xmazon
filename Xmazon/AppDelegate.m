@@ -20,8 +20,6 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     
-    [API getAppToken];
-    
     UIWindow* w = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     w.rootViewController = [[UINavigationController alloc] initWithRootViewController:[InscriptionViewController new]];
     [w makeKeyAndVisible];

@@ -16,5 +16,6 @@
 @property (weak, nonatomic) IBOutlet UITextField *firstnameTextField;
 @property (weak, nonatomic) IBOutlet UITextField *lastnameTextField;
 
+- (void) showErrorWithTitle:(NSString*)pTitle andDescription:(NSString*)pDescription;
 
 @end

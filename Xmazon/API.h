@@ -9,12 +9,11 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import "Constants.h"
+#import "AppDelegate.h"
 
 @interface API : NSObject
 
-+ (BOOL) getAppToken;
-+ (BOOL) getUserToken;
-
-+ (BOOL) subscribeUserWithEmail:(NSString*)pEmail andPassword:(NSString*)pPassword andFirstName:(NSString*)pFirstName andLastName:(NSString*)pLastName;
++ (void) getAppToken;
++ (void) getUserToken;
 
 @end
