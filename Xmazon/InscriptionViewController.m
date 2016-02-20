@@ -89,6 +89,9 @@
                         dispatch_async(dispatch_get_main_queue(), ^() {
                             [self showErrorWithTitle:@"ERREUR" andDescription:@"Un compte a déjà été créé avec cet email."];
                         });
+                    } else if ([jsonObjects valueForKey:@"code"] == [[NSNumber alloc] initWithLong:401]) {
+                        [API getAppToken];
+                        [self subscribeUserWithEmail:pEmail andPassword:pPassword andFirstName:pFirstName andLastName:pLastName];
                     } else {
                         [userDefaults setValue:[jsonObjects valueForKey:@"uid"] forKey:@"uid"];
                         [userDefaults setValue:[jsonObjects valueForKey:@"email"] forKey:@"email"];
