@@ -36,12 +36,12 @@
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits"/>
                 </textField>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="qyz-Bm-vNo">
-                    <rect key="frame" x="128" y="345" width="64" height="30"/>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="v1K-CO-u37">
+                    <rect key="frame" x="181" y="345" width="92" height="30"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
-                    <state key="normal" title="S'inscrire"/>
+                    <state key="normal" title="Se connecter"/>
                     <connections>
-                        <action selector="subscribeButtonTapped:" destination="-1" eventType="touchUpInside" id="BKj-sd-OSg"/>
+                        <action selector="login:" destination="-1" eventType="touchUpInside" id="u6d-oR-2Lb"/>
                     </connections>
                 </button>
                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Nom" textAlignment="natural" minimumFontSize="17" id="2lz-Ve-94r">
@@ -50,6 +50,14 @@
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits"/>
                 </textField>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="qyz-Bm-vNo">
+                    <rect key="frame" x="48" y="345" width="64" height="30"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                    <state key="normal" title="S'inscrire"/>
+                    <connections>
+                        <action selector="subscribeButtonTapped:" destination="-1" eventType="touchUpInside" id="BKj-sd-OSg"/>
+                    </connections>
+                </button>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <point key="canvasLocation" x="433" y="245"/>

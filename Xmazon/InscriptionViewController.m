@@ -23,6 +23,18 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+- (IBAction)login:(id)sender {
+    if (self.emailTextField.text && self.emailTextField.text.length > 5) {
+        if (self.passwordTextField.text && self.passwordTextField.text.length > 5) {
+            [API getUserToken:self.emailTextField.text andPassword:self.passwordTextField.text];
+        } else {
+            [self showErrorWithTitle:@"ERREUR" andDescription:@"Le mot de passe doit être supérieur à 5 lettres"];
+        }
+    } else {
+        [self showErrorWithTitle:@"ERREUR" andDescription:@"Veuillez saisir un email valide"];
+    }
+    
+}
 
 - (IBAction)subscribeButtonTapped:(id)sender {
     if (self.emailTextField.text && self.emailTextField.text.length > 5) {

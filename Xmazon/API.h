@@ -14,6 +14,6 @@
 @interface API : NSObject
 
 + (void) getAppToken;
-+ (void) getUserToken;
++ (void) getUserToken:(NSString*)pEmail andPassword:(NSString*)pPassword;
 
 @end
