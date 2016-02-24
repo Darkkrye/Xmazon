@@ -17,5 +17,6 @@
 @property (weak, nonatomic) IBOutlet UITextField *lastnameTextField;
 
 - (void) showErrorWithTitle:(NSString*)pTitle andDescription:(NSString*)pDescription;
+- (void) getUserToken:(NSString*)pEmail andPassword:(NSString*)pPassword;
 
 @end
