@@ -90,6 +90,61 @@
         [self getAppToken];
         [self getUserToken:pEmail andPassword:pPassword];
     }
+    [self getStoreList];
 }
+
++ (void) getStoreList {
+    
+//    [self getAppToken];
+    __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    //    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+    //    NSURLSession* session = [NSURLSession sessionWithConfiguration:config];
+    ////    NSURLSession* session = [NSURLSession sharedSession];
+    //    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://xmazon.appspaces.fr/store/list"]];
+    //    request.HTTPMethod = @"GET";
+    //
+    if ([userDefaults valueForKey:@"token_type"] && [userDefaults valueForKey:@"access_token"] && [userDefaults valueForKey:@"refresh_token"]) {
+        NSURL *url = [NSURL URLWithString:@"http://xmazon.appspaces.fr/store/list"];
+        NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+        NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
+        
+        // 2
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
+        request.HTTPMethod = @"GET";
+        NSString* str = [[NSString alloc]initWithFormat:@"Bearer %@",[userDefaults valueForKey:@"access_token"]];
+        NSMutableDictionary* headers = [request.allHTTPHeaderFields mutableCopy];
+        [headers setObject:str forKey:@"Authorization"];
+        request.allHTTPHeaderFields = headers;
+        //    NSMutableDictionary* headers = [request.allHTTPHeaderFields mutableCopy];
+        //    NSString* authorization = [[NSString alloc] initWithFormat:@"%@ %@", [[userDefaults valueForKey:@"token_type"] capitalizedString], [userDefaults valueForKey:@"access_token"]];
+        //    [headers setObject:authorization forKey:@"Authorization"];
+        //    request.allHTTPHeaderFields = headers;
+        //
+        //    NSString* body = [NSString stringWithFormat:@"grant_type=client_credentials&client_id=%@&client_secret=%@", idAccessAPI, secretAccessAPI];
+        //
+        //    request.HTTPBody = [body dataUsingEncoding:NSUTF8StringEncoding];
+        //
+        [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            if(!error) {
+                NSLog(@"Response : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                
+                NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+                
+                if (error) {
+                    NSLog(@"%@", error);
+                } else {
+                    NSLog(@"%@", jsonObjects);
+                }
+            } else {
+                NSLog(@"HERE : %@", error);
+            }
+        }] resume];
+    } else {
+        [self getAppToken];
+        [self getStoreList];
+    }
+}
+
 
 @end

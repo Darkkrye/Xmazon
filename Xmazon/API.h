@@ -15,5 +15,6 @@
 
 + (void) getAppToken;
 + (void) getUserToken:(NSString*)pEmail andPassword:(NSString*)pPassword;
++ (void) getStoreList;
 
 @end
