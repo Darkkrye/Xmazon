@@ -58,7 +58,7 @@
         
         [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             if(!error) {
-                NSLog(@"Response getUserToken : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+//                NSLog(@"Response getUserToken : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                 
                 NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
                 
@@ -146,7 +146,7 @@
         
         [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             if(!error) {
-                NSLog(@"Response : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+//                NSLog(@"Response : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                 
                 NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
                 
