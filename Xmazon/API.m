@@ -23,7 +23,7 @@
     
     [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if(!error) {
-//            NSLog(@"Response : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+            NSLog(@"Response getAppToken : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
             
             NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
             
@@ -58,19 +58,29 @@
         
         [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             if(!error) {
-//                NSLog(@"Response : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                NSLog(@"Response getStoreList: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                 
                 NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
-
-                NSArray* result = [jsonObjects valueForKey:@"result"];
-//                NSLog(@"%@", [[result objectAtIndex:0] valueForKey:@"uid"]);
-                [self getCategoryList:[[result objectAtIndex:0] valueForKey:@"uid"]];
 
                 if (error) {
                     NSLog(@"%@", error);
                 } else {
-                    NSLog(@"%@", jsonObjects);
+                    if ([jsonObjects valueForKey:@"code"] == [[NSNumber alloc] initWithLong:500]) {
+                        dispatch_async(dispatch_get_main_queue(), ^() {
+//                            [self showErrorWithTitle:@"ERREUR" andDescription:@"Un compte a déjà été créé avec cet email."];
+                        });
+                    } else if ([jsonObjects valueForKey:@"code"] == [[NSNumber alloc] initWithLong:401]) {
+                        NSLog(@"PASSE ICI !");
+                        [API getAppToken];
+                        [self getStoreList];
+                    } else {
+                        NSArray* result = [jsonObjects valueForKey:@"result"];
+                        //                NSLog(@"%@", [[result objectAtIndex:0] valueForKey:@"uid"]);
+                        [self getCategoryList:[[result objectAtIndex:0] valueForKey:@"uid"]];
+
+                    }
                 }
+                
             } else {
                 NSLog(@"HERE : %@", error);
             }
@@ -102,7 +112,7 @@
         
         [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             if(!error) {
-                NSLog(@"Response CATEGORY : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                NSLog(@"Response getCategoryList : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                 
                 NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
                 
