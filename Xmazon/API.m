@@ -77,7 +77,12 @@
                         NSArray* result = [jsonObjects valueForKey:@"result"];
                         NSLog(@"BEFORE : %@", [[result objectAtIndex:0] valueForKey:@"uid"]);
                         [self getCategoryList:[[result objectAtIndex:0] valueForKey:@"uid"]];
-
+                        
+                        
+                        
+                        for (int i = 0; i < result.count; i++) {
+                            
+                        }
                     }
                 }
                 
