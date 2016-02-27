@@ -76,7 +76,7 @@
                     } else {
                         NSArray* result = [jsonObjects valueForKey:@"result"];
                         NSLog(@"BEFORE : %@", [[result objectAtIndex:0] valueForKey:@"uid"]);
-                        [self getCategoryList:[[result objectAtIndex:0] valueForKey:@"uid"]];
+                        [self getCategoryListWithStoreUID:[[result objectAtIndex:0] valueForKey:@"uid"]];
 
                     }
                 }
@@ -91,7 +91,7 @@
     }
 }
 
-+ (void) getCategoryList:(NSString*)storeUID {
++ (void) getCategoryListWithStoreUID:(NSString*)storeUID {
     NSLog(@"AFTER : %@", storeUID);
     __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     
