@@ -75,7 +75,7 @@
                         [self getStoreList];
                     } else {
                         NSArray* result = [jsonObjects valueForKey:@"result"];
-                        //                NSLog(@"%@", [[result objectAtIndex:0] valueForKey:@"uid"]);
+                        NSLog(@"BEFORE : %@", [[result objectAtIndex:0] valueForKey:@"uid"]);
                         [self getCategoryList:[[result objectAtIndex:0] valueForKey:@"uid"]];
 
                     }
@@ -92,13 +92,13 @@
 }
 
 + (void) getCategoryList:(NSString*)storeUID {
-    
+    NSLog(@"AFTER : %@", storeUID);
     __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     NSURLSession* session = [NSURLSession sessionWithConfiguration:config];
     
-    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://xmazon.appspaces.fr/category/list"]];
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/category/list?store_uid=%@&limit=3", storeUID]]];
     request.HTTPMethod = @"GET";
     
     if ([userDefaults valueForKey:@"token_type"] && [userDefaults valueForKey:@"access_token"] && [userDefaults valueForKey:@"refresh_token"]) {
@@ -107,11 +107,15 @@
         [headers setObject:authorization forKey:@"Authorization"];
         request.allHTTPHeaderFields = headers;
         
-        NSString* body = [NSString stringWithFormat:@"store_uid=%@", storeUID];
-        request.HTTPBody = [body dataUsingEncoding:NSUTF8StringEncoding];
+//        NSString* body = [NSString stringWithFormat:@"store_uid=%@&limit=3", storeUID];
+//        NSInputStream* dataStream = [[NSInputStream alloc] initWithData:[body dataUsingEncoding:NSUTF8StringEncoding]];
+//        request.HTTPBodyStream = dataStream ;
+//        [request setHTTPBody:[body dataUsingEncoding:NSUTF8StringEncoding]];
         
         [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            NSLog(@"ENTER ?");
             if(!error) {
+                NSLog(@"And Now ?");
                 NSLog(@"Response getCategoryList : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                 
                 NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];

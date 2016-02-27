@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Xmazon/API.m"
+            timestampString = "478269786.276338"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "114"
+            endingLineNumber = "114"
+            landmarkName = "+getCategoryList:"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "+[API getCategoryList:]"
+                  moduleName = "Xmazon"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/Nico/Documents/ESGI/Cours/DevMobileiPhone/ProjetXMazon/Xmazon/Xmazon/API.m"
+                  timestampString = "478269302.999683"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "115"
+                  endingLineNumber = "115"
+                  offsetFromSymbolStart = "1632">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "__23+[API getCategoryList:]_block_invoke"
+                  moduleName = "Xmazon"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/Nico/Documents/ESGI/Cours/DevMobileiPhone/ProjetXMazon/Xmazon/Xmazon/API.m"
+                  timestampString = "478269303.017601"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "115"
+                  endingLineNumber = "115"
+                  offsetFromSymbolStart = "105">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
