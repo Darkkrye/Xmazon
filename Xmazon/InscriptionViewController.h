@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "API.h"
+#import "StoreTableViewController.h"
 
 @interface InscriptionViewController : UIViewController
 

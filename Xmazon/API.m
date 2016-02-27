@@ -76,8 +76,13 @@
                     } else {
                         NSArray* result = [jsonObjects valueForKey:@"result"];
                         NSLog(@"BEFORE : %@", [[result objectAtIndex:0] valueForKey:@"uid"]);
-                        [self getCategoryListWithStoreUID:[[result objectAtIndex:0] valueForKey:@"uid"]];
 
+                        [self getCategoryListWithStoreUID:[[result objectAtIndex:0] valueForKey:@"uid"]];
+                        
+                        
+                        for (int i = 0; i < result.count; i++) {
+                            
+                        }
                     }
                 }
                 

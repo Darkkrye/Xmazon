@@ -80,6 +80,11 @@
                         [userDefaults setValue:[jsonObjects valueForKey:@"access_token"] forKey:@"user_access_token"];
                         [userDefaults setValue:[jsonObjects valueForKey:@"expires_in"] forKey:@"user_expires_in"];
                         [userDefaults setValue:[jsonObjects valueForKey:@"refresh_token"] forKey:@"user_refresh_token"];
+                        
+                        UINavigationController* storeView = [[UINavigationController alloc] initWithRootViewController:[StoreTableViewController new]];;
+                        dispatch_async(dispatch_get_main_queue(), ^() {
+                            [self presentViewController:storeView animated:YES completion:0];
+                        });
                     }
                 }
             } else {
@@ -89,7 +94,7 @@
         [API getAppToken];
         [self getUserToken:pEmail andPassword:pPassword];
     }
-    [API getStoreList];
+    //[API getStoreList];
 }
 
 - (IBAction)subscribeButtonTapped:(id)sender {
@@ -161,11 +166,18 @@
                         [API getAppToken];
                         [self subscribeUserWithEmail:pEmail andPassword:pPassword andFirstName:pFirstName andLastName:pLastName];
                     } else {
+                        NSLog(@"SET VALUES TO USER");
+                        [userDefaults setValue:pPassword forKey:@"password"];
                         [userDefaults setValue:[jsonObjects valueForKey:@"uid"] forKey:@"uid"];
                         [userDefaults setValue:[jsonObjects valueForKey:@"email"] forKey:@"email"];
                         [userDefaults setValue:[jsonObjects valueForKey:@"username"] forKey:@"username"];
                         [userDefaults setValue:[jsonObjects valueForKey:@"firstname"] forKey:@"firstname"];
                         [userDefaults setValue:[jsonObjects valueForKey:@"lastname"] forKey:@"lastname"];
+                        
+                        NSLog(@"%@", [userDefaults valueForKey:@"password"]);
+                        NSLog(@"%@", [userDefaults valueForKey:@"email"]);
+                        NSLog(@"%@", [userDefaults valueForKey:@"firstname"]);
+                        NSLog(@"%@", [userDefaults valueForKey:@"uid"]);
                     }
                 }
             } else {
