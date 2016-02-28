@@ -47,6 +47,9 @@
         NSString* body = [NSString stringWithFormat:@"product_uid=%@", productID];
         request.HTTPBody = [body dataUsingEncoding:NSUTF8StringEncoding];
         
+        [request setValue:[NSString stringWithFormat:@"%lu",(unsigned long)[body length]] forHTTPHeaderField:@"Content-Length"];
+        [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+        
         [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             //NSLog(@"ENTER ?");
             if(!error) {
@@ -63,19 +66,19 @@
 //                    [self getProductListByCategorie:categorieID];
                 } else {
                     NSLog(@"%@", jsonObjects);
-                    NSArray* result = [jsonObjects valueForKey:@"result"];
-                    
-                    if (result == nil || [result count] == 0) {
-                        NSLog(@"Rien");
-                    } else {
-                        for (int i = 0; i < result.count; i++) {
-                            [self.products addObject:[result objectAtIndex:i]];
-                        }
-                        
-                        dispatch_async(dispatch_get_main_queue(), ^() {
-                            [self.tableView reloadData];
-                        });
-                    }
+//                    NSArray* result = [jsonObjects valueForKey:@"result"];
+//                    
+//                    if (result == nil || [result count] == 0) {
+//                        NSLog(@"Rien");
+//                    } else {
+//                        for (int i = 0; i < result.count; i++) {
+//                            [self.products addObject:[result objectAtIndex:i]];
+//                        }
+//                        
+//                        dispatch_async(dispatch_get_main_queue(), ^() {
+//                            [self.tableView reloadData];
+//                        });
+//                    }
                 }
             } else {
                 //NSLog(@"HERE HERE : %@", error);
