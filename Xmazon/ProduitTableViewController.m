@@ -27,7 +27,66 @@
 // MARK: - IBActions
 - (IBAction)addToCart:(id)sender {
     UIButton *button = (UIButton*) sender;
-    NSLog(@"ADD TO CART => %@", [[self.products objectAtIndex:button.tag] valueForKey:@"uid"]);
+    NSString* productID = [[self.products objectAtIndex:button.tag] valueForKey:@"uid"];
+    NSLog(@"ADD TO CART => %@", productID);
+    __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession* session = [NSURLSession sessionWithConfiguration:config];
+    
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/cart/add"]]];
+    request.HTTPMethod = @"PUT";
+    
+    if ([userDefaults valueForKey:@"user_token_type"] && [userDefaults valueForKey:@"user_access_token"] && [userDefaults valueForKey:@"user_refresh_token"]) {
+        NSMutableDictionary* headers = [request.allHTTPHeaderFields mutableCopy];
+        NSString* authorization = [[NSString alloc] initWithFormat:@"%@ %@", [[userDefaults valueForKey:@"user_token_type"] capitalizedString], [userDefaults valueForKey:@"user_access_token"]];
+        [headers setObject:authorization forKey:@"Authorization"];
+        request.allHTTPHeaderFields = headers;
+        
+        
+        NSString* body = [NSString stringWithFormat:@"product_uid=%@", productID];
+        request.HTTPBody = [body dataUsingEncoding:NSUTF8StringEncoding];
+        
+        [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            //NSLog(@"ENTER ?");
+            if(!error) {
+                //NSLog(@"And Now ?");
+                NSLog(@"Response getPCartroductList : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                
+                NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+                
+                if (error) {
+                    NSLog(@"%@", error);
+                } else if ([[jsonObjects valueForKey:@"error"] isEqualToString:@"invalid_token"]) {
+                    [API getUserToken];
+                    NSLog(@"ERROR ADD CART 1");
+//                    [self getProductListByCategorie:categorieID];
+                } else {
+                    NSLog(@"%@", jsonObjects);
+                    NSArray* result = [jsonObjects valueForKey:@"result"];
+                    
+                    if (result == nil || [result count] == 0) {
+                        NSLog(@"Rien");
+                    } else {
+                        for (int i = 0; i < result.count; i++) {
+                            [self.products addObject:[result objectAtIndex:i]];
+                        }
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^() {
+                            [self.tableView reloadData];
+                        });
+                    }
+                }
+            } else {
+                //NSLog(@"HERE HERE : %@", error);
+            }
+        }] resume];
+    } else {
+        [API getUserToken];
+        NSLog(@"ERROR ADD CART 2");
+//        [self getProductListByCategorie:categorieID];
+    }
+
 }
 
 
@@ -140,6 +199,7 @@ static NSString* const kCellReuseIdentifier = @"ProductCell";
         NSString* authorization = [[NSString alloc] initWithFormat:@"%@ %@", [[userDefaults valueForKey:@"user_token_type"] capitalizedString], [userDefaults valueForKey:@"user_access_token"]];
         [headers setObject:authorization forKey:@"Authorization"];
         request.allHTTPHeaderFields = headers;
+        
         
         [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             //NSLog(@"ENTER ?");
