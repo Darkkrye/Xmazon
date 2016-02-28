@@ -20,6 +20,8 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     
+    [self getAppToken];
+    
     UIWindow* w = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     w.rootViewController = [[UINavigationController alloc] initWithRootViewController:[StoreTableViewController new]];
     [w makeKeyAndVisible];
@@ -50,6 +52,7 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+//MARK: - Méthodes perso
 - (void) getAppToken {
     __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     

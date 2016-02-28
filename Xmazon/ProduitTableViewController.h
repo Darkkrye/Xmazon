@@ -7,7 +7,18 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "API.h"
 
-@interface ProduitTableViewController : UITableViewController
+@interface ProduitTableViewController : UITableViewController {
+    NSString* catName_;
+    NSString* catUid_;
+    NSMutableArray* products_;
+    NSString* selectedProduct_;
+}
+
+@property (strong, nonatomic) NSString* catName;
+@property (strong, nonatomic) NSString* catUid;
+@property (strong, nonatomic) NSMutableArray* products;
+@property (strong, nonatomic) NSString* selectedProduct;
 
 @end

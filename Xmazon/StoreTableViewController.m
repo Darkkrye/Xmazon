@@ -14,40 +14,17 @@
 
 @implementation StoreTableViewController
 
+// MARK: - Variables
 @synthesize uD = uD_;
 @synthesize stores = stores_;
+@synthesize alreadyConnected = alreadyConnected_;
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
-    
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-    
-    
-    [self getStoreList];
-    
-    self.uD = [NSUserDefaults standardUserDefaults];
-    self.stores = [[NSMutableArray alloc] init];
-    
-    UIBarButtonItem *logButton = [[UIBarButtonItem alloc]
-                                   initWithTitle:@"S'enregistrer"
-                                   style:UIBarButtonItemStylePlain
-                                   target:self
-                                   action:@selector(logButtonTapped:)];
-    
-    UIBarButtonItem* searchButton = [[UIBarButtonItem alloc]
-                                     initWithBarButtonSystemItem:UIBarButtonSystemItemSearch
-                                     target:self
-                                     action:@selector(searchButtonTapped:)];
-    
-    self.navigationItem.leftBarButtonItem = logButton;
-    self.navigationItem.rightBarButtonItem = searchButton;
-}
 
--(IBAction)logButtonTapped:(UIButton*) sender {
+// MARK: - IBOutlets
+
+
+// MARK: - IBActions
+- (IBAction)logButtonTapped:(UIButton*) sender {
     InscriptionViewController* inscriptionVC = [[InscriptionViewController alloc] init];
     [self.navigationController pushViewController:inscriptionVC animated:YES];
 }
@@ -66,13 +43,27 @@
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
+
+// MARK: - Méthodes de base
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // Uncomment the following line to preserve selection between presentations.
+    // self.clearsSelectionOnViewWillAppear = NO;
+    
+    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
+    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    self.uD = [NSUserDefaults standardUserDefaults];
+    [self load];
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
 #pragma mark - Table view data source
-
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
@@ -81,6 +72,68 @@
     return self.stores.count;
 }
 
+static NSString* const kCellReuseIdentifier = @"StoreCell";
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:kCellReuseIdentifier];
+    
+    if (!cell) {
+        //NSLog(@"CREATE Cell");
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:kCellReuseIdentifier];
+    } else {
+        //NSLog(@"REUSE Cell");
+    }
+    
+    NSString* value = [[self.stores objectAtIndex:indexPath.row] valueForKey:@"name"];
+    cell.textLabel.text = value;
+    cell.detailTextLabel.text = [[self.stores objectAtIndex:indexPath.row] valueForKey:@"uid"];
+    
+    return cell;
+}
+
+
+#pragma mark - Table view delegate
+// In a xib-based application, navigation from a table can be handled in -tableView:didSelectRowAtIndexPath:
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    // Navigation logic may go here, for example:
+    // Create the next view controller.
+    CategoryTableViewController *detailViewController = [[CategoryTableViewController alloc] initWithNibName:@"CategoryTableViewController" bundle:nil];
+    
+    // Pass the selected object to the new view controller.
+    detailViewController.storeName = [[self.stores objectAtIndex:indexPath.row] valueForKey:@"name"];
+    detailViewController.storeUid = [[self.stores objectAtIndex:indexPath.row] valueForKey:@"uid"];
+    
+    // Push the view controller.
+    [self.navigationController pushViewController:detailViewController animated:YES];
+}
+
+
+// MARK: - Méthodes perso
+- (void)load {
+    if ([self.uD valueForKey:@"user_access_token"]) {
+        [self getStoreList];
+        
+        self.uD = [NSUserDefaults standardUserDefaults];
+        self.stores = [[NSMutableArray alloc] init];
+        
+        UIBarButtonItem *logButton = [[UIBarButtonItem alloc]
+                                      initWithTitle:@"S'enregistrer"
+                                      style:UIBarButtonItemStylePlain
+                                      target:self
+                                      action:@selector(logButtonTapped:)];
+        
+        UIBarButtonItem* searchButton = [[UIBarButtonItem alloc]
+                                         initWithBarButtonSystemItem:UIBarButtonSystemItemSearch
+                                         target:self
+                                         action:@selector(searchButtonTapped:)];
+        
+        self.navigationItem.leftBarButtonItem = logButton;
+        self.navigationItem.rightBarButtonItem = searchButton;
+    } else {
+        [API getAppToken];
+        InscriptionViewController* inscriptionVC = [[InscriptionViewController alloc] init];
+        [self.navigationController presentViewController:inscriptionVC animated:YES completion:0];
+    }
+}
 
 - (void) getStoreList {
     
@@ -100,7 +153,7 @@
         
         [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             if(!error) {
-                NSLog(@"Response getStoreList: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                //NSLog(@"Response getStoreList: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                 
                 NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
                 
@@ -113,12 +166,12 @@
                             [self presentViewController:storeView animated:YES completion:0];
                         });
                     } else if ([jsonObjects valueForKey:@"code"] == [[NSNumber alloc] initWithLong:401]) {
-                        NSLog(@"PASSE ICI !");
+                        //NSLog(@"PASSE ICI !");
                         [API getAppToken];
                         [self getStoreList];
                     } else {
                         NSArray* result = [jsonObjects valueForKey:@"result"];
-                        NSLog(@"BEFORE : %@", [[result objectAtIndex:0] valueForKey:@"uid"]);
+                        //NSLog(@"BEFORE : %@", [[result objectAtIndex:0] valueForKey:@"uid"]);
                         //[self getCategoryList:[[result objectAtIndex:0] valueForKey:@"uid"]];
                         
                         for (int i = 0; i < result.count; i++) {
@@ -132,7 +185,7 @@
                 }
                 
             } else {
-                NSLog(@"HERE : %@", error);
+                //NSLog(@"HERE : %@", error);
             }
         }] resume];
     } else {
@@ -141,24 +194,7 @@
     }
 }
 
-static NSString* const kCellReuseIdentifier = @"StoreCell";
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:kCellReuseIdentifier];
-    
-    if (!cell) {
-        //NSLog(@"CREATE Cell");
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:kCellReuseIdentifier];
-    } else {
-        //NSLog(@"REUSE Cell");
-    }
-    
-    NSString* value = [[self.stores objectAtIndex:indexPath.row] valueForKey:@"name"];
-    cell.textLabel.text = value;
-    cell.detailTextLabel.text = [[self.stores objectAtIndex:indexPath.row] valueForKey:@"uid"];
-    
-    return cell;
-}
 
 /*
 // Override to support conditional editing of the table view.
@@ -193,22 +229,6 @@ static NSString* const kCellReuseIdentifier = @"StoreCell";
     return YES;
 }
 */
-
-#pragma mark - Table view delegate
-
-// In a xib-based application, navigation from a table can be handled in -tableView:didSelectRowAtIndexPath:
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Navigation logic may go here, for example:
-    // Create the next view controller.
-    CategoryTableViewController *detailViewController = [[CategoryTableViewController alloc] initWithNibName:@"CategoryTableViewController" bundle:nil];
-    
-    // Pass the selected object to the new view controller.
-    detailViewController.storeName = [[self.stores objectAtIndex:indexPath.row] valueForKey:@"name"];
-    detailViewController.storeUid = [[self.stores objectAtIndex:indexPath.row] valueForKey:@"uid"];
-    
-    // Push the view controller.
-    [self.navigationController pushViewController:detailViewController animated:YES];
-}
 
 /*
 #pragma mark - Navigation

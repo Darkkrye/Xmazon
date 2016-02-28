@@ -14,16 +14,7 @@
 
 @implementation InscriptionViewController
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
+//MARK: - IBActions
 - (IBAction)login:(id)sender {
     if (self.emailTextField.text && self.emailTextField.text.length > 5) {
         if (self.passwordTextField.text && self.passwordTextField.text.length > 5) {
@@ -34,12 +25,44 @@
     } else {
         [self showErrorWithTitle:@"ERREUR" andDescription:@"Veuillez saisir un email valide"];
     }
-    
+}
+
+- (IBAction)subscribeButtonTapped:(id)sender {
+    if (self.emailTextField.text && self.emailTextField.text.length > 5) {
+        if (self.passwordTextField.text && self.passwordTextField.text.length > 5) {
+            if (self.firstnameTextField.text && self.firstnameTextField.text.length > 0) {
+                if (self.lastnameTextField.text && self.lastnameTextField.text.length > 0) {
+                    [self subscribeUserWithEmail:self.emailTextField.text andPassword:self.passwordTextField.text andFirstName:self.firstnameTextField.text andLastName:self.lastnameTextField.text];
+                } else {
+                    [self showErrorWithTitle:@"ERREUR" andDescription:@"Veuillez saisir un nom de famille"];
+                }
+            } else {
+                [self showErrorWithTitle:@"ERREUR" andDescription:@"Veuillez saisir un prénom"];
+            }
+        } else {
+            [self showErrorWithTitle:@"ERREUR" andDescription:@"Le mot de passe doit être supérieur à 5 lettres"];
+        }
+    } else {
+        [self showErrorWithTitle:@"ERREUR" andDescription:@"Veuillez saisir un email valide"];
+    }
 }
 
 
+//MARK: - Méthodes de base
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+//MARK: - Méthodes perso
 - (void) getUserToken:(NSString*)pEmail andPassword:(NSString*)pPassword {
-    NSLog(@"%@ - %@", pEmail, pPassword);
+    //NSLog(@"%@ - %@", pEmail, pPassword);
     
     __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     
@@ -67,7 +90,7 @@
                 } else {
                     if ([jsonObjects valueForKey:@"code"] == [[NSNumber alloc] initWithLong:500]) {
                         dispatch_async(dispatch_get_main_queue(), ^() {
-                            NSLog(@"ERREUR");
+                            //NSLog(@"ERREUR");
                             //                            [self showErrorWithTitle:@"ERREUR" andDescription:@"Un compte a déjà été créé avec cet email."];
                         });
                     } else if ([jsonObjects valueForKey:@"code"] == [[NSNumber alloc] initWithLong:401]) {
@@ -81,7 +104,8 @@
                         [userDefaults setValue:[jsonObjects valueForKey:@"expires_in"] forKey:@"user_expires_in"];
                         [userDefaults setValue:[jsonObjects valueForKey:@"refresh_token"] forKey:@"user_refresh_token"];
                         
-                        UINavigationController* storeView = [[UINavigationController alloc] initWithRootViewController:[StoreTableViewController new]];;
+                        UINavigationController* storeView = [[UINavigationController alloc] initWithRootViewController:[StoreTableViewController new]];
+                        
                         dispatch_async(dispatch_get_main_queue(), ^() {
                             [self presentViewController:storeView animated:YES completion:0];
                         });
@@ -95,42 +119,6 @@
         [self getUserToken:pEmail andPassword:pPassword];
     }
     //[API getStoreList];
-}
-
-- (IBAction)subscribeButtonTapped:(id)sender {
-    if (self.emailTextField.text && self.emailTextField.text.length > 5) {
-        if (self.passwordTextField.text && self.passwordTextField.text.length > 5) {
-            if (self.firstnameTextField.text && self.firstnameTextField.text.length > 0) {
-                if (self.lastnameTextField.text && self.lastnameTextField.text.length > 0) {
-                    [self subscribeUserWithEmail:self.emailTextField.text andPassword:self.passwordTextField.text andFirstName:self.firstnameTextField.text andLastName:self.lastnameTextField.text];
-                } else {
-                    [self showErrorWithTitle:@"ERREUR" andDescription:@"Veuillez saisir un nom de famille"];
-                }
-            } else {
-                [self showErrorWithTitle:@"ERREUR" andDescription:@"Veuillez saisir un prénom"];
-            }
-        } else {
-            [self showErrorWithTitle:@"ERREUR" andDescription:@"Le mot de passe doit être supérieur à 5 lettres"];
-        }
-    } else {
-        [self showErrorWithTitle:@"ERREUR" andDescription:@"Veuillez saisir un email valide"];
-    }
-}
-
-- (void) showErrorWithTitle:(NSString*)pTitle andDescription:(NSString*)pDescription {
-    UIAlertController * alert=   [UIAlertController
-                                  alertControllerWithTitle:pTitle
-                                  message:pDescription
-                                  preferredStyle:UIAlertControllerStyleAlert];
-    
-    UIAlertAction* okButton = [UIAlertAction
-                                actionWithTitle:@"Ok !"
-                                style:UIAlertActionStyleDefault
-                                handler:nil];
-    
-    [alert addAction:okButton];
-    
-    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void) subscribeUserWithEmail:(NSString*)pEmail andPassword:(NSString*)pPassword andFirstName:(NSString*)pFirstName andLastName:(NSString*)pLastName {
@@ -166,7 +154,7 @@
                         [API getAppToken];
                         [self subscribeUserWithEmail:pEmail andPassword:pPassword andFirstName:pFirstName andLastName:pLastName];
                     } else {
-                        NSLog(@"SET VALUES TO USER");
+                        //NSLog(@"SET VALUES TO USER");
                         [userDefaults setValue:pPassword forKey:@"password"];
                         [userDefaults setValue:[jsonObjects valueForKey:@"uid"] forKey:@"uid"];
                         [userDefaults setValue:[jsonObjects valueForKey:@"email"] forKey:@"email"];
@@ -174,10 +162,10 @@
                         [userDefaults setValue:[jsonObjects valueForKey:@"firstname"] forKey:@"firstname"];
                         [userDefaults setValue:[jsonObjects valueForKey:@"lastname"] forKey:@"lastname"];
                         
-                        NSLog(@"%@", [userDefaults valueForKey:@"password"]);
+                        /*NSLog(@"%@", [userDefaults valueForKey:@"password"]);
                         NSLog(@"%@", [userDefaults valueForKey:@"email"]);
                         NSLog(@"%@", [userDefaults valueForKey:@"firstname"]);
-                        NSLog(@"%@", [userDefaults valueForKey:@"uid"]);
+                        NSLog(@"%@", [userDefaults valueForKey:@"uid"]);*/
                     }
                 }
             } else {
@@ -187,6 +175,22 @@
         [API getAppToken];
         [self subscribeUserWithEmail:pEmail andPassword:pPassword andFirstName:pFirstName andLastName:pLastName];
     }
+}
+
+- (void) showErrorWithTitle:(NSString*)pTitle andDescription:(NSString*)pDescription {
+    UIAlertController * alert=   [UIAlertController
+                                  alertControllerWithTitle:pTitle
+                                  message:pDescription
+                                  preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:@"Ok !"
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    [alert addAction:okButton];
+    
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 /*

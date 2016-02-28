@@ -14,9 +14,11 @@
 @interface StoreTableViewController : UITableViewController {
     NSUserDefaults* uD_;
     NSMutableArray* stores_;
+    BOOL alreadyConnected_;
 }
 
 @property (strong, nonatomic)NSUserDefaults* uD;
 @property (strong, nonatomic)NSMutableArray* stores;
+@property (assign, nonatomic)BOOL alreadyConnected;
 
 @end

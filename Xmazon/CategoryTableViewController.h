@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "API.h"
+#import "ProduitTableViewController.h"
 
 @interface CategoryTableViewController : UITableViewController {
     NSString* storeName_;

@@ -14,6 +14,24 @@
 
 @implementation ProduitTableViewController
 
+// MARK: - Variables
+@synthesize catName = catName_;
+@synthesize catUid = catUid_;
+@synthesize products = products_;
+@synthesize selectedProduct = selectedProduct_;
+
+
+// MARK: - IBOutlets
+
+
+// MARK: - IBActions
+- (IBAction)addToCart:(id)sender {
+    UIButton *button = (UIButton*) sender;
+    NSLog(@"ADD TO CART => %@", [[self.products objectAtIndex:button.tag] valueForKey:@"uid"]);
+}
+
+
+// MARK: - Méthodes de base
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -22,6 +40,9 @@
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    [self getProductListByCategorie:self.catUid];
+    self.products = [[NSMutableArray alloc] init];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -30,25 +51,134 @@
 }
 
 #pragma mark - Table view data source
-
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-#warning Incomplete implementation, return the number of rows
-    return 0;
+    return self.products.count;
 }
 
-/*
+static NSString* const kCellReuseIdentifier = @"ProductCell";
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:<#@"reuseIdentifier"#> forIndexPath:indexPath];
+    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:kCellReuseIdentifier];
     
-    // Configure the cell...
+    if (!cell) {
+        //NSLog(@"CREATE Cell");
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:kCellReuseIdentifier];
+    } else {
+        //NSLog(@"REUSE Cell");
+    }
+    
+    NSString* value = [[self.products objectAtIndex:indexPath.row] valueForKey:@"name"];
+    cell.textLabel.text = value;
+    
+    NSNumberFormatter *fmt = [[NSNumberFormatter alloc] init];
+    [fmt setPositiveFormat:@"0.##"];
+    NSNumber* price = [[self.products objectAtIndex:indexPath.row] valueForKey:@"price"];
+    cell.detailTextLabel.text = [NSString stringWithFormat:@"%@ €", [fmt stringFromNumber:price]];
+    
+    if ([[[self.products objectAtIndex:indexPath.row] valueForKey:@"available"] boolValue] == YES) {
+        UIButton *button = [[UIButton alloc] init];
+        [button addTarget:self
+                   action:@selector(addToCart:)
+         forControlEvents:UIControlEventTouchUpInside];
+        [button setImage:[UIImage imageNamed:@"add-to-cart"] forState:UIControlStateNormal];
+        [button setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+        button.tag = indexPath.row;
+        
+        if([[UIDevice currentDevice]userInterfaceIdiom]==UIUserInterfaceIdiomPhone)
+        {
+            if ([[UIScreen mainScreen] bounds].size.width >= 375)
+            {
+                button.frame = CGRectMake(300, 0, 40.0, 40.0);
+            }
+            else
+            {
+                button.frame = CGRectMake(270, 0, 40.0, 40.0);
+            }
+        }
+        
+        button.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+        [cell.contentView addSubview:button];
+    } else {
+        
+        UILabel* label = [[UILabel alloc] init];
+        [label setText:@"Indisponible"];
+        [label setTextColor:[UIColor grayColor]];
+        
+        if([[UIDevice currentDevice]userInterfaceIdiom]==UIUserInterfaceIdiomPhone)
+        {
+            if ([[UIScreen mainScreen] bounds].size.width >= 375)
+            {
+                label.frame = CGRectMake(270, 0, 100.0, 40.0);
+            }
+            else
+            {
+                label.frame = CGRectMake(220, 0, 100.0, 40.0);
+            }
+        }
+        
+        [cell.contentView addSubview:label];
+    }
     
     return cell;
 }
-*/
+
+//MARK: - Méthodes perso
+- (void) getProductListByCategorie:(NSString*)categorieID {
+    __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession* session = [NSURLSession sessionWithConfiguration:config];
+    
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/product/list?category_uid=%@", categorieID]]];
+    request.HTTPMethod = @"GET";
+    
+    if ([userDefaults valueForKey:@"user_token_type"] && [userDefaults valueForKey:@"user_access_token"] && [userDefaults valueForKey:@"user_refresh_token"]) {
+        NSMutableDictionary* headers = [request.allHTTPHeaderFields mutableCopy];
+        NSString* authorization = [[NSString alloc] initWithFormat:@"%@ %@", [[userDefaults valueForKey:@"user_token_type"] capitalizedString], [userDefaults valueForKey:@"user_access_token"]];
+        [headers setObject:authorization forKey:@"Authorization"];
+        request.allHTTPHeaderFields = headers;
+        
+        [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            //NSLog(@"ENTER ?");
+            if(!error) {
+                //NSLog(@"And Now ?");
+                NSLog(@"Response getProductList : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                
+                NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+                
+                if (error) {
+                    NSLog(@"%@", error);
+                } else if ([[jsonObjects valueForKey:@"error"] isEqualToString:@"invalid_token"]) {
+                    [API getUserToken];
+                    [self getProductListByCategorie:categorieID];
+                } else {
+                    NSLog(@"%@", jsonObjects);
+                    NSArray* result = [jsonObjects valueForKey:@"result"];
+                    
+                    if (result == nil || [result count] == 0) {
+                        NSLog(@"Rien");
+                    } else {
+                        for (int i = 0; i < result.count; i++) {
+                            [self.products addObject:[result objectAtIndex:i]];
+                        }
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^() {
+                            [self.tableView reloadData];
+                        });
+                    }
+                }
+            } else {
+                //NSLog(@"HERE HERE : %@", error);
+            }
+        }] resume];
+    } else {
+        [API getUserToken];
+        [self getProductListByCategorie:categorieID];
+    }
+}
 
 /*
 // Override to support conditional editing of the table view.

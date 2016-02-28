@@ -118,9 +118,9 @@
 //        [request setHTTPBody:[body dataUsingEncoding:NSUTF8StringEncoding]];
         
         [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            NSLog(@"ENTER ?");
+            //NSLog(@"ENTER ?");
             if(!error) {
-                NSLog(@"And Now ?");
+                //NSLog(@"And Now ?");
                 NSLog(@"Response getCategoryList : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                 
                 NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
@@ -131,13 +131,119 @@
                     NSLog(@"%@", jsonObjects);
                 }
             } else {
-                NSLog(@"HERE HERE : %@", error);
+                //NSLog(@"HERE HERE : %@", error);
             }
         }] resume];
     } else {
         [self getAppToken];
         [self getStoreList];
     }
+}
+
++ (void) getUserToken {
+    
+    __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    NSURLSession* session = [NSURLSession sharedSession];
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://xmazon.appspaces.fr/oauth/token"]];
+    request.HTTPMethod = @"POST";
+    
+    if ([userDefaults valueForKey:@"token_type"] && [userDefaults valueForKey:@"access_token"] && [userDefaults valueForKey:@"refresh_token"]) {
+        /*NSMutableDictionary* headers = [request.allHTTPHeaderFields mutableCopy];
+         NSString* authorization = [[NSString alloc] initWithFormat:@"%@ %@", [[userDefaults valueForKey:@"token_type"] capitalizedString], [userDefaults valueForKey:@"access_token"]];
+         [headers setObject:authorization forKey:@"Authorization"];
+         request.allHTTPHeaderFields = headers;*/
+        
+        NSString* body = [NSString stringWithFormat:@"grant_type=refresh_token&refresh_token=%@&client_id=%@&client_secret=%@", [userDefaults valueForKey:@"user_refresh_token"], idAccessAPI, secretAccessAPI];
+        request.HTTPBody = [body dataUsingEncoding:NSUTF8StringEncoding];
+        
+        [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            if(!error) {
+                NSLog(@"Response getUserToken : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                
+                NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+                
+                if (error) {
+                    NSLog(@"%@", error);
+                } else {
+                    if ([jsonObjects valueForKey:@"code"] == [[NSNumber alloc] initWithLong:500]) {
+                        dispatch_async(dispatch_get_main_queue(), ^() {
+                            NSLog(@"ERREUR");
+                            //                            [self showErrorWithTitle:@"ERREUR" andDescription:@"Un compte a déjà été créé avec cet email."];
+                        });
+                    } else if ([jsonObjects valueForKey:@"code"] == [[NSNumber alloc] initWithLong:401]) {
+                        [API getAppToken];
+                        //[self getUserToken:pEmail andPassword:pPassword];
+                    } else if ([jsonObjects valueForKey:@"code"] == [[NSNumber alloc] initWithLong:400]) {
+                        NSLog(@"ERROR : email ou password non valide");
+                    } else {
+                        [userDefaults setValue:[jsonObjects valueForKey:@"token_type"] forKey:@"user_token_type"];
+                        [userDefaults setValue:[jsonObjects valueForKey:@"access_token"] forKey:@"user_access_token"];
+                        [userDefaults setValue:[jsonObjects valueForKey:@"expires_in"] forKey:@"user_expires_in"];
+                        [userDefaults setValue:[jsonObjects valueForKey:@"refresh_token"] forKey:@"user_refresh_token"];
+                    }
+                }
+            } else {
+            }
+        }] resume];
+    } else {
+        [API getAppToken];
+        [API getUserToken];
+    }
+    //[API getStoreList];
+}
+
++ (void) refreshUserToken {
+    
+    __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    NSURLSession* session = [NSURLSession sharedSession];
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://xmazon.appspaces.fr/oauth/token"]];
+    request.HTTPMethod = @"POST";
+    
+    if ([userDefaults valueForKey:@"token_type"] && [userDefaults valueForKey:@"access_token"] && [userDefaults valueForKey:@"refresh_token"]) {
+        /*NSMutableDictionary* headers = [request.allHTTPHeaderFields mutableCopy];
+        NSString* authorization = [[NSString alloc] initWithFormat:@"%@ %@", [[userDefaults valueForKey:@"token_type"] capitalizedString], [userDefaults valueForKey:@"access_token"]];
+        [headers setObject:authorization forKey:@"Authorization"];
+        request.allHTTPHeaderFields = headers;*/
+        
+        NSString* body = [NSString stringWithFormat:@"grant_type=refresh_token&refresh_token=%@&client_id=%@&client_secret=%@", [userDefaults valueForKey:@"user_refresh_token"], idAccessAPI, secretAccessAPI];
+        request.HTTPBody = [body dataUsingEncoding:NSUTF8StringEncoding];
+        
+        [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            if(!error) {
+                NSLog(@"Response getUserToken : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                
+                NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+                
+                if (error) {
+                    NSLog(@"%@", error);
+                } else {
+                    if ([jsonObjects valueForKey:@"code"] == [[NSNumber alloc] initWithLong:500]) {
+                        dispatch_async(dispatch_get_main_queue(), ^() {
+                            NSLog(@"ERREUR");
+                            //                            [self showErrorWithTitle:@"ERREUR" andDescription:@"Un compte a déjà été créé avec cet email."];
+                        });
+                    } else if ([jsonObjects valueForKey:@"code"] == [[NSNumber alloc] initWithLong:401]) {
+                        [API getAppToken];
+                        //[self getUserToken:pEmail andPassword:pPassword];
+                    } else if ([jsonObjects valueForKey:@"code"] == [[NSNumber alloc] initWithLong:400]) {
+                        NSLog(@"ERROR : email ou password non valide");
+                    } else {
+                        [userDefaults setValue:[jsonObjects valueForKey:@"token_type"] forKey:@"user_token_type"];
+                        [userDefaults setValue:[jsonObjects valueForKey:@"access_token"] forKey:@"user_access_token"];
+                        [userDefaults setValue:[jsonObjects valueForKey:@"expires_in"] forKey:@"user_expires_in"];
+                        [userDefaults setValue:[jsonObjects valueForKey:@"refresh_token"] forKey:@"user_refresh_token"];
+                    }
+                }
+            } else {
+            }
+        }] resume];
+    } else {
+        [API getAppToken];
+        [API getUserToken];
+    }
+    //[API getStoreList];
 }
 
 

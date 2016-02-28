@@ -16,5 +16,7 @@
 + (void) getAppToken;
 + (void) getStoreList;
 + (void) getCategoryListWithStoreUID:(NSString*)storeUID;
++ (void) refreshUserToken;
++ (void) getUserToken;
 
 @end

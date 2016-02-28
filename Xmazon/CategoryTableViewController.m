@@ -14,10 +14,19 @@
 
 @implementation CategoryTableViewController
 
+// MARK: - Variables
 @synthesize storeName = storeName_;
 @synthesize storeUid = storeUid_;
 @synthesize categories = categories_;
 
+
+// MARK: - IBOutlets
+
+
+// MARK: - IBActions
+
+
+//MARK: - Méthodes de base
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -37,7 +46,6 @@
 }
 
 #pragma mark - Table view data source
-
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
@@ -46,6 +54,42 @@
     return self.categories.count;
 }
 
+static NSString* const kCellReuseIdentifier = @"CategoryCell";
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:kCellReuseIdentifier];
+    
+    if (!cell) {
+        //NSLog(@"CREATE Cell");
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:kCellReuseIdentifier];
+    } else {
+        //NSLog(@"REUSE Cell");
+    }
+    
+    NSString* value = [[self.categories objectAtIndex:indexPath.row] valueForKey:@"name"];
+    cell.textLabel.text = value;
+    cell.detailTextLabel.text = [[self.categories objectAtIndex:indexPath.row] valueForKey:@"uid"];
+    
+    return cell;
+}
+
+
+#pragma mark - Table view delegate
+// In a xib-based application, navigation from a table can be handled in -tableView:didSelectRowAtIndexPath:
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    // Navigation logic may go here, for example:
+    // Create the next view controller.
+    ProduitTableViewController *detailViewController = [[ProduitTableViewController alloc] initWithNibName:@"ProduitTableViewController" bundle:nil];
+    
+    // Pass the selected object to the new view controller.
+    detailViewController.catName = [[self.categories objectAtIndex:indexPath.row] valueForKey:@"name"];
+    detailViewController.catUid = [[self.categories objectAtIndex:indexPath.row] valueForKey:@"uid"];
+    
+    // Push the view controller.
+    [self.navigationController pushViewController:detailViewController animated:YES];
+}
+
+
+//MARK: - Méthodes perso
 - (void) getCategoryList:(NSString*)storeUID {
     NSLog(@"AFTER : %@", storeUID);
     __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
@@ -68,9 +112,9 @@
         //        [request setHTTPBody:[body dataUsingEncoding:NSUTF8StringEncoding]];
         
         [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            NSLog(@"ENTER ?");
+            //NSLog(@"ENTER ?");
             if(!error) {
-                NSLog(@"And Now ?");
+                //NSLog(@"And Now ?");
                 NSLog(@"Response getCategoryList : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                 
                 NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
@@ -96,32 +140,13 @@
                     }
                 }
             } else {
-                NSLog(@"HERE HERE : %@", error);
+                //NSLog(@"HERE HERE : %@", error);
             }
         }] resume];
     } else {
         [API getAppToken];
         [API getStoreList];
     }
-}
-
-static NSString* const kCellReuseIdentifier = @"CategoryCell";
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:kCellReuseIdentifier];
-    
-    if (!cell) {
-        //NSLog(@"CREATE Cell");
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:kCellReuseIdentifier];
-    } else {
-        //NSLog(@"REUSE Cell");
-    }
-    
-    NSString* value = [[self.categories objectAtIndex:indexPath.row] valueForKey:@"name"];
-    cell.textLabel.text = value;
-    cell.detailTextLabel.text = [[self.categories objectAtIndex:indexPath.row] valueForKey:@"uid"];
-    
-    return cell;
 }
 
 /*
@@ -157,75 +182,6 @@ static NSString* const kCellReuseIdentifier = @"CategoryCell";
     return YES;
 }
 */
-
-
-#pragma mark - Table view delegate
-
-// In a xib-based application, navigation from a table can be handled in -tableView:didSelectRowAtIndexPath:
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"FAIS MOI REVER");
-    
-    NSString* name = [[self.categories objectAtIndex:indexPath.row] valueForKey:@"name"];
-    NSString* categoryUid = [[self.categories objectAtIndex:indexPath.row] valueForKey:@"name"];
-
-    
-    __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-    
-    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-    NSURLSession* session = [NSURLSession sessionWithConfiguration:config];
-
-    
-    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/product/list?category_uid=%@", categoryUid]]];
-    request.HTTPMethod = @"GET";
-    
-    NSLog(@"%@ # %@", [userDefaults valueForKey:@"password"], [userDefaults valueForKey:@"username"]);
-    if ([userDefaults valueForKey:@"password"] && [userDefaults valueForKey:@"username"]) {
-    
-        NSMutableDictionary* headers = [request.allHTTPHeaderFields mutableCopy];
-        NSString* authorization = [[NSString alloc] initWithFormat:@"%@ %@", [[userDefaults valueForKey:@"token_type"] capitalizedString], [userDefaults valueForKey:@"access_token"]];
-        [headers setObject:authorization forKey:@"Authorization"];
-        request.allHTTPHeaderFields = headers;
-        
-        NSString* body = [NSString stringWithFormat:@"grant_type=password&username=%@&password=%@", [userDefaults valueForKey:@"username"], [userDefaults valueForKey:@"password"]];
-        request.HTTPBody = [body dataUsingEncoding:NSUTF8StringEncoding];
-        
-        //        NSString* body = [NSString stringWithFormat:@"store_uid=%@&limit=3", storeUID];
-        //        NSInputStream* dataStream = [[NSInputStream alloc] initWithData:[body dataUsingEncoding:NSUTF8StringEncoding]];
-        //        request.HTTPBodyStream = dataStream ;
-        //        [request setHTTPBody:[body dataUsingEncoding:NSUTF8StringEncoding]];
-        
-        [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            NSLog(@"ENTER ?");
-            if(!error) {
-                NSLog(@"And Now ?");
-                NSLog(@"Response getCategoryList : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-                
-                NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
-                
-                if (error) {
-                    NSLog(@"%@", error);
-                } else {
-                    NSLog(@"%@", jsonObjects);
-                }
-            } else {
-                NSLog(@"HERE HERE : %@", error);
-            }
-        }] resume];
-    } else {
-        NSLog(@"Coucou");
-    }
-
-    
-    
-    // Navigation logic may go here, for example:
-    // Create the next view controller.
-//    <#DetailViewController#> *detailViewController = [[<#DetailViewController#> alloc] initWithNibName:<#@"Nib name"#> bundle:nil];
-    
-    // Pass the selected object to the new view controller.
-    
-    // Push the view controller.
-//    [self.navigationController pushViewController:detailViewController animated:YES];
-}
 
 
 /*
