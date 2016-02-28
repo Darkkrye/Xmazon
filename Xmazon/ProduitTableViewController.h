@@ -14,11 +14,13 @@
     NSString* catUid_;
     NSMutableArray* products_;
     NSString* selectedProduct_;
+    BOOL returned_;
 }
 
 @property (strong, nonatomic) NSString* catName;
 @property (strong, nonatomic) NSString* catUid;
 @property (strong, nonatomic) NSMutableArray* products;
 @property (strong, nonatomic) NSString* selectedProduct;
+@property (assign, nonatomic) BOOL returned;
 
 @end

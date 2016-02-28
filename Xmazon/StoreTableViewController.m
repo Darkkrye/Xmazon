@@ -24,9 +24,17 @@
 
 
 // MARK: - IBActions
-- (IBAction)logButtonTapped:(UIButton*) sender {
-    InscriptionViewController* inscriptionVC = [[InscriptionViewController alloc] init];
-    [self.navigationController pushViewController:inscriptionVC animated:YES];
+- (IBAction)logOutButtonTapped:(UIButton*) sender {
+    UIAlertController* alertController = [UIAlertController alertControllerWithTitle:@"Déconnexion" message:@"Etes-vous sûrs de vouloir vous déconnecter ?" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction* action = [UIAlertAction actionWithTitle:@"Oui" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {
+        [self.uD removeObjectForKey:@"user_access_token"];
+        InscriptionViewController* inscriptionVC = [[InscriptionViewController alloc] init];
+        [self.navigationController presentViewController:inscriptionVC animated:YES completion:0];
+    }];
+    UIAlertAction* cancel = [UIAlertAction actionWithTitle:@"Annuler" style:UIAlertActionStyleDestructive handler:nil];
+    [alertController addAction:action];
+    [alertController addAction:cancel];
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 -(IBAction)searchButtonTapped:(UIButton*) sender {
@@ -36,6 +44,7 @@
     }];
     UIAlertAction* action = [UIAlertAction actionWithTitle:@"Rechercher" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {
         NSLog(@"Recherche : %@", [alertController.textFields objectAtIndex:0].text);
+        [self getProductListByResearch:[alertController.textFields objectAtIndex:0].text];
     }];
     UIAlertAction* cancel = [UIAlertAction actionWithTitle:@"Annuler" style:UIAlertActionStyleDestructive handler:nil];
     [alertController addAction:action];
@@ -116,10 +125,10 @@ static NSString* const kCellReuseIdentifier = @"StoreCell";
         self.stores = [[NSMutableArray alloc] init];
         
         UIBarButtonItem *logButton = [[UIBarButtonItem alloc]
-                                      initWithTitle:@"S'enregistrer"
+                                      initWithTitle:@"Déconnexion"
                                       style:UIBarButtonItemStylePlain
                                       target:self
-                                      action:@selector(logButtonTapped:)];
+                                      action:@selector(logOutButtonTapped:)];
         
         UIBarButtonItem* searchButton = [[UIBarButtonItem alloc]
                                          initWithBarButtonSystemItem:UIBarButtonSystemItemSearch
@@ -128,6 +137,7 @@ static NSString* const kCellReuseIdentifier = @"StoreCell";
         
         self.navigationItem.leftBarButtonItem = logButton;
         self.navigationItem.rightBarButtonItem = searchButton;
+        self.navigationItem.title = @"Xmazon";
     } else {
         [API getAppToken];
         InscriptionViewController* inscriptionVC = [[InscriptionViewController alloc] init];
@@ -194,7 +204,61 @@ static NSString* const kCellReuseIdentifier = @"StoreCell";
     }
 }
 
-
+- (void) getProductListByResearch:(NSString*)research {
+    __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession* session = [NSURLSession sessionWithConfiguration:config];
+    
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/product/list?search=%@", research]]];
+    request.HTTPMethod = @"GET";
+    
+    if ([userDefaults valueForKey:@"user_token_type"] && [userDefaults valueForKey:@"user_access_token"] && [userDefaults valueForKey:@"user_refresh_token"]) {
+        NSMutableDictionary* headers = [request.allHTTPHeaderFields mutableCopy];
+        NSString* authorization = [[NSString alloc] initWithFormat:@"%@ %@", [[userDefaults valueForKey:@"user_token_type"] capitalizedString], [userDefaults valueForKey:@"user_access_token"]];
+        [headers setObject:authorization forKey:@"Authorization"];
+        request.allHTTPHeaderFields = headers;
+        
+        [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+        
+        [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            //NSLog(@"ENTER ?");
+            if(!error) {
+                //NSLog(@"And Now ?");
+                NSLog(@"Response getProductList : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                
+                NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+                
+                if (error) {
+                    NSLog(@"%@", error);
+                } else if ([[jsonObjects valueForKey:@"error"] isEqualToString:@"invalid_token"]) {
+                    [API getUserToken];
+                    [self getProductListByResearch:research];
+                } else {
+                    NSLog(@"%@", jsonObjects);
+                    /*NSArray* result = [jsonObjects valueForKey:@"result"];
+                    
+                    if (result == nil || [result count] == 0) {
+                        NSLog(@"Rien");
+                    } else {
+                        for (int i = 0; i < result.count; i++) {
+                            [self.products addObject:[result objectAtIndex:i]];
+                        }
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^() {
+                            [self.tableView reloadData];
+                        });
+                    }*/
+                }
+            } else {
+                //NSLog(@"HERE HERE : %@", error);
+            }
+        }] resume];
+    } else {
+        [API getUserToken];
+        [self getProductListByResearch:research];
+    }
+}
 
 /*
 // Override to support conditional editing of the table view.

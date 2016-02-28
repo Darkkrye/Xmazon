@@ -38,6 +38,7 @@
     
     [self getCategoryList:self.storeUid];
     self.categories = [[NSMutableArray alloc] init];
+    self.navigationItem.title = self.storeName;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -128,7 +129,12 @@ static NSString* const kCellReuseIdentifier = @"CategoryCell";
                     //[self getCategoryList:[[result objectAtIndex:0] valueForKey:@"uid"]];
                     
                     if (result == nil || [result count] == 0) {
-                        NSLog(@"Rien");
+                        /*ProduitTableViewController *detailViewController = [[ProduitTableViewController alloc] initWithNibName:@"ProduitTableViewController" bundle:nil];
+                        
+                        detailViewController.catName = self.storeName;
+                        detailViewController.catUid = self.storeUid;
+                        
+                        [self.navigationController pushViewController:detailViewController animated:YES];*/
                     } else {
                         for (int i = 0; i < result.count; i++) {
                             [self.categories addObject:[result objectAtIndex:i]];
