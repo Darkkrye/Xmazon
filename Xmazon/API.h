@@ -10,8 +10,11 @@
 #import <UIKit/UIKit.h>
 #import "Constants.h"
 #import "AppDelegate.h"
+#import "Cart.h"
 
 @interface API : NSObject
+
++ (Cart*) getCart;
 
 + (void) getAppToken;
 + (void) getStoreList;

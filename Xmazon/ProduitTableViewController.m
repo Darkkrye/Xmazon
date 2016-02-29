@@ -35,6 +35,18 @@
     [self addToCartWithProductId:[[self.products objectAtIndex:button.tag] valueForKey:@"uid"] andQuantity:1];
 }
 
+- (IBAction)addToCartLongPress:(id)sender {
+    UIGestureRecognizer *recognizer = (UIGestureRecognizer*) sender;
+    self.returned = YES;
+    [self showAlertForNumberWithName:[[self.products objectAtIndex:recognizer.view.tag] valueForKey:@"name"] andProductId:[[self.products objectAtIndex:recognizer.view.tag] valueForKey:@"uid"] andRetry:NO];
+}
+
+- (IBAction)cartButtonTapped:(id)sender {
+    PanierTableViewController* inscriptionVC = [[PanierTableViewController alloc] init];
+    [self.navigationController modalTransitionStyle];
+    [self.navigationController pushViewController:inscriptionVC animated:YES];
+}
+
 
 // MARK: - Méthodes de base
 - (void)viewDidLoad {
@@ -52,6 +64,13 @@
     }
     
     self.navigationItem.title = self.catName;
+    
+    UIBarButtonItem* cartButton = [[UIBarButtonItem alloc]
+                                     initWithBarButtonSystemItem:UIBarButtonSystemItemBookmarks
+                                     target:self
+                                     action:@selector(cartButtonTapped:)];
+    
+    self.navigationItem.rightBarButtonItem = cartButton;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -87,48 +106,62 @@ static NSString* const kCellReuseIdentifier = @"ProductCell";
     NSNumber* price = [[self.products objectAtIndex:indexPath.row] valueForKey:@"price"];
     cell.detailTextLabel.text = [NSString stringWithFormat:@"%@ €", [fmt stringFromNumber:price]];
     
-    if ([[[self.products objectAtIndex:indexPath.row] valueForKey:@"available"] boolValue] == YES) {
-        UIButton *button = [[UIButton alloc] init];
-        [button addTarget:self
-                   action:@selector(addToCart:)
-         forControlEvents:UIControlEventTouchUpInside];
-        [button setImage:[UIImage imageNamed:@"add-to-cart"] forState:UIControlStateNormal];
-        [button setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
-        button.tag = indexPath.row;
-        
-        if([[UIDevice currentDevice]userInterfaceIdiom]==UIUserInterfaceIdiomPhone)
-        {
-            if ([[UIScreen mainScreen] bounds].size.width >= 375)
-            {
-                button.frame = CGRectMake(300, 0, 40.0, 40.0);
-            }
-            else
-            {
-                button.frame = CGRectMake(270, 0, 40.0, 40.0);
-            }
+    BOOL exists = NO;
+    Cart* cart = [API getCart];
+    for (int i = 0; i < [API getCart].products.count; i++) {
+        if ([[[[API getCart].products objectAtIndex:i] valueForKey:@"uid"] isEqualToString:cell.textLabel.text]) {
+            exists = YES;
+            break;
         }
-        
-        button.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
-        [cell.contentView addSubview:button];
-    } else {
-        
-        UILabel* label = [[UILabel alloc] init];
-        [label setText:@"Indisponible"];
-        [label setTextColor:[UIColor grayColor]];
-        
-        if([[UIDevice currentDevice]userInterfaceIdiom]==UIUserInterfaceIdiomPhone)
-        {
-            if ([[UIScreen mainScreen] bounds].size.width >= 375)
+    }
+    
+    if (!exists) {
+        if ([[[self.products objectAtIndex:indexPath.row] valueForKey:@"available"] boolValue] == YES) {
+            UIButton *button = [[UIButton alloc] init];
+            [button addTarget:self
+                       action:@selector(addToCart:)
+             forControlEvents:UIControlEventTouchUpInside];
+            [button setImage:[UIImage imageNamed:@"add-to-cart"] forState:UIControlStateNormal];
+            [button setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+            [button setTag:indexPath.row];
+            
+            UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(addToCartLongPress:)];
+            [button addGestureRecognizer:longPress];
+            
+            if([[UIDevice currentDevice]userInterfaceIdiom]==UIUserInterfaceIdiomPhone)
             {
-                label.frame = CGRectMake(270, 0, 100.0, 40.0);
+                if ([[UIScreen mainScreen] bounds].size.width >= 375)
+                {
+                    button.frame = CGRectMake(300, 0, 40.0, 40.0);
+                }
+                else
+                {
+                    button.frame = CGRectMake(270, 0, 40.0, 40.0);
+                }
             }
-            else
+            
+            button.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+            [cell.contentView addSubview:button];
+        } else {
+            
+            UILabel* label = [[UILabel alloc] init];
+            [label setText:@"Indisponible"];
+            [label setTextColor:[UIColor grayColor]];
+            
+            if([[UIDevice currentDevice]userInterfaceIdiom]==UIUserInterfaceIdiomPhone)
             {
-                label.frame = CGRectMake(220, 0, 100.0, 40.0);
+                if ([[UIScreen mainScreen] bounds].size.width >= 375)
+                {
+                    label.frame = CGRectMake(270, 0, 100.0, 40.0);
+                }
+                else
+                {
+                    label.frame = CGRectMake(220, 0, 100.0, 40.0);
+                }
             }
+            
+            [cell.contentView addSubview:label];
         }
-        
-        [cell.contentView addSubview:label];
     }
     
     return cell;
@@ -231,6 +264,23 @@ static NSString* const kCellReuseIdentifier = @"ProductCell";
                     if (self.returned) {
                         self.returned = NO;
                         [self addToCartWithProductId:productID andQuantity:quantity];
+                    } else {
+                        NSMutableArray<NSDictionary*>* productsCart = [[jsonObjects valueForKey:@"result"] valueForKey:@"products_cart"];
+                        for (int i = 0; i < productsCart.count; i++) {
+                            Product* produit = [[Product alloc] init];
+                            if ([[productsCart objectAtIndex:i] valueForKey:@"uid"]) {
+                                produit.uidProductCart = [[productsCart objectAtIndex:i] valueForKey:@"uid"];
+                            } else if ([[productsCart objectAtIndex:i] valueForKey:@"quantity"]) {
+                                produit.quantity = [[productsCart objectAtIndex:i] valueForKey:@"quantity"];
+                            } else if ([[productsCart objectAtIndex:i] valueForKey:@"product"]) {
+                                produit.available = [[[productsCart objectAtIndex:i] valueForKey:@"product"] boolForKey:@"available"];
+                                produit.name = [[[productsCart objectAtIndex:i] valueForKey:@"product"] valueForKey:@"name"];
+                                produit.price = (NSNumber*)[[[productsCart objectAtIndex:i] valueForKey:@"product"] valueForKey:@"price"];
+                                produit.uid = [[[productsCart objectAtIndex:i] valueForKey:@"product"] valueForKey:@"uid"];
+                            }
+                            
+                            [[API getCart].products addObject:produit];
+                        }
                     }
                 }
             } else {
@@ -242,6 +292,34 @@ static NSString* const kCellReuseIdentifier = @"ProductCell";
         NSLog(@"ERROR ADD CART 2");
         //        [self getProductListByCategorie:categorieID];
     }
+}
+
+- (void) showAlertForNumberWithName:(NSString*)pName andProductId:(NSString*)pUid andRetry:(BOOL)pRetry {
+    UIAlertController* alertController = [UIAlertController alertControllerWithTitle:@"Ajouter au panier" message:[NSString stringWithFormat:@"Combien d'unité du produit %@ souhaitez vous ajouter au panier ?", pName] preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField* textField) {
+        if (pRetry) {
+            textField.placeholder = @"Supérieur à 0 et inférieur à 10!";
+        } else {
+            textField.placeholder = @"Entrez un nombre";
+        }
+        
+        [textField setKeyboardType:UIKeyboardTypeNumberPad];
+    }];
+    UIAlertAction* action = [UIAlertAction actionWithTitle:@"Ajouter" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {
+        //NSLog(@"Nombre de produits : %@", [alertController.textFields objectAtIndex:0].text);
+        
+        int quantity = [[alertController.textFields objectAtIndex:0].text intValue];
+        
+        if (quantity < 1 || quantity > 9) {
+            [self showAlertForNumberWithName:pName andProductId:pUid andRetry:YES];
+        } else {
+            [self addToCartWithProductId:pUid andQuantity:quantity];
+        }
+    }];
+    UIAlertAction* cancel = [UIAlertAction actionWithTitle:@"Annuler" style:UIAlertActionStyleDestructive handler:nil];
+    [alertController addAction:action];
+    [alertController addAction:cancel];
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 /*

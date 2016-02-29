@@ -8,7 +8,17 @@
 
 #import "API.h"
 
+static Cart* cart;
+
 @implementation API
+
++ (Cart*) getCart {
+    if (cart == nil) {
+        cart = [[Cart alloc] init];
+    }
+    
+    return  cart;
+}
 
 + (void) getAppToken {
     __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];

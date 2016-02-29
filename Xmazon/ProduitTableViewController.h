@@ -8,6 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "API.h"
+#import "Cart.h"
+#import "Product.h"
+#import "PanierTableViewController.h"
 
 @interface ProduitTableViewController : UITableViewController {
     NSString* catName_;

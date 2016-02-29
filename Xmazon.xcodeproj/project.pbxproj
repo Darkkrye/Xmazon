@@ -13,6 +13,10 @@
 		8F4DBCE51C81F7700048988C /* CategoryTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8F4DBCE31C81F7700048988C /* CategoryTableViewController.xib */; };
 		8F4DBCE91C8200980048988C /* ProduitTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F4DBCE71C8200980048988C /* ProduitTableViewController.m */; };
 		8F4DBCEA1C8200980048988C /* ProduitTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8F4DBCE81C8200980048988C /* ProduitTableViewController.xib */; };
+		8F4DBCF21C84BD840048988C /* Product.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F4DBCF11C84BD840048988C /* Product.m */; };
+		8F4DBCF51C84BD910048988C /* Cart.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F4DBCF41C84BD910048988C /* Cart.m */; };
+		8F4DBCFA1C84EBB10048988C /* PanierTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F4DBCF81C84EBB10048988C /* PanierTableViewController.m */; };
+		8F4DBCFB1C84EBB10048988C /* PanierTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8F4DBCF91C84EBB10048988C /* PanierTableViewController.xib */; };
 		8FB36B271C6D0FAD007A780D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FB36B261C6D0FAD007A780D /* main.m */; };
 		8FB36B2A1C6D0FAD007A780D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FB36B291C6D0FAD007A780D /* AppDelegate.m */; };
 		8FB36B321C6D0FAD007A780D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8FB36B311C6D0FAD007A780D /* Assets.xcassets */; };
@@ -52,6 +56,13 @@
 		8F4DBCE61C8200980048988C /* ProduitTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProduitTableViewController.h; sourceTree = "<group>"; };
 		8F4DBCE71C8200980048988C /* ProduitTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProduitTableViewController.m; sourceTree = "<group>"; };
 		8F4DBCE81C8200980048988C /* ProduitTableViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ProduitTableViewController.xib; sourceTree = "<group>"; };
+		8F4DBCF01C84BD840048988C /* Product.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Product.h; path = ../Product.h; sourceTree = "<group>"; };
+		8F4DBCF11C84BD840048988C /* Product.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Product.m; path = ../Product.m; sourceTree = "<group>"; };
+		8F4DBCF31C84BD910048988C /* Cart.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cart.h; sourceTree = "<group>"; };
+		8F4DBCF41C84BD910048988C /* Cart.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Cart.m; sourceTree = "<group>"; };
+		8F4DBCF71C84EBB10048988C /* PanierTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PanierTableViewController.h; sourceTree = "<group>"; };
+		8F4DBCF81C84EBB10048988C /* PanierTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PanierTableViewController.m; sourceTree = "<group>"; };
+		8F4DBCF91C84EBB10048988C /* PanierTableViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PanierTableViewController.xib; sourceTree = "<group>"; };
 		8FB36B221C6D0FAD007A780D /* Xmazon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Xmazon.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8FB36B261C6D0FAD007A780D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		8FB36B281C6D0FAD007A780D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -146,8 +157,30 @@
 				8F4DBCEC1C8200BB0048988C /* Produits */,
 				8F4DBCED1C8200C30048988C /* Categories */,
 				8F4DBCEE1C8200CC0048988C /* Inscription */,
+				8F4DBCFC1C84EBB50048988C /* Panier */,
 			);
 			name = ViewController;
+			sourceTree = "<group>";
+		};
+		8F4DBCF61C84BD970048988C /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				8F4DBCF31C84BD910048988C /* Cart.h */,
+				8F4DBCF41C84BD910048988C /* Cart.m */,
+				8F4DBCF01C84BD840048988C /* Product.h */,
+				8F4DBCF11C84BD840048988C /* Product.m */,
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		8F4DBCFC1C84EBB50048988C /* Panier */ = {
+			isa = PBXGroup;
+			children = (
+				8F4DBCF71C84EBB10048988C /* PanierTableViewController.h */,
+				8F4DBCF81C84EBB10048988C /* PanierTableViewController.m */,
+				8F4DBCF91C84EBB10048988C /* PanierTableViewController.xib */,
+			);
+			name = Panier;
 			sourceTree = "<group>";
 		};
 		8FB36B191C6D0FAD007A780D = {
@@ -184,6 +217,7 @@
 				8FFFF3B21C6F43BB00FE4A62 /* API.h */,
 				8FFFF3B31C6F43BB00FE4A62 /* API.m */,
 				8F4DBCEF1C8200D20048988C /* ViewController */,
+				8F4DBCF61C84BD970048988C /* Classes */,
 			);
 			path = Xmazon;
 			sourceTree = "<group>";
@@ -322,6 +356,7 @@
 			files = (
 				8FFFF3B91C6F909900FE4A62 /* InscriptionViewController.xib in Resources */,
 				8F4DBCE01C81E3F10048988C /* StoreTableViewController.xib in Resources */,
+				8F4DBCFB1C84EBB10048988C /* PanierTableViewController.xib in Resources */,
 				8FB36B351C6D0FAD007A780D /* LaunchScreen.storyboard in Resources */,
 				8F4DBCE51C81F7700048988C /* CategoryTableViewController.xib in Resources */,
 				8FB36B321C6D0FAD007A780D /* Assets.xcassets in Resources */,
@@ -353,11 +388,14 @@
 				8FFFF3B81C6F909900FE4A62 /* InscriptionViewController.m in Sources */,
 				8F4DBCE41C81F7700048988C /* CategoryTableViewController.m in Sources */,
 				8FB36B2A1C6D0FAD007A780D /* AppDelegate.m in Sources */,
+				8F4DBCF21C84BD840048988C /* Product.m in Sources */,
 				8FB36B271C6D0FAD007A780D /* main.m in Sources */,
+				8F4DBCF51C84BD910048988C /* Cart.m in Sources */,
 				8FFFF3B41C6F43BB00FE4A62 /* API.m in Sources */,
 				8F4DBCE91C8200980048988C /* ProduitTableViewController.m in Sources */,
 				8FB36B5A1C6D1353007A780D /* Constants.m in Sources */,
 				8F4DBCDF1C81E3F10048988C /* StoreTableViewController.m in Sources */,
+				8F4DBCFA1C84EBB10048988C /* PanierTableViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
