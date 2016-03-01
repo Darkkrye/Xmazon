@@ -166,6 +166,8 @@
                         NSLog(@"%@", [userDefaults valueForKey:@"email"]);
                         NSLog(@"%@", [userDefaults valueForKey:@"firstname"]);
                         NSLog(@"%@", [userDefaults valueForKey:@"uid"]);*/
+                        
+                        [self getUserToken:pEmail andPassword:pPassword];
                     }
                 }
             } else {

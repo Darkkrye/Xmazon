@@ -22,6 +22,11 @@
     
     [self getAppToken];
     
+    Cart* cart = [Cart retrieveCart];
+    if (cart) {
+        [API setCart:cart];
+    }
+    
     UIWindow* w = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     w.rootViewController = [[UINavigationController alloc] initWithRootViewController:[StoreTableViewController new]];
     [w makeKeyAndVisible];

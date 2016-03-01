@@ -387,11 +387,11 @@
 			files = (
 				8FFFF3B81C6F909900FE4A62 /* InscriptionViewController.m in Sources */,
 				8F4DBCE41C81F7700048988C /* CategoryTableViewController.m in Sources */,
+				8FFFF3B41C6F43BB00FE4A62 /* API.m in Sources */,
+				8F4DBCF51C84BD910048988C /* Cart.m in Sources */,
 				8FB36B2A1C6D0FAD007A780D /* AppDelegate.m in Sources */,
 				8F4DBCF21C84BD840048988C /* Product.m in Sources */,
 				8FB36B271C6D0FAD007A780D /* main.m in Sources */,
-				8F4DBCF51C84BD910048988C /* Cart.m in Sources */,
-				8FFFF3B41C6F43BB00FE4A62 /* API.m in Sources */,
 				8F4DBCE91C8200980048988C /* ProduitTableViewController.m in Sources */,
 				8FB36B5A1C6D1353007A780D /* Constants.m in Sources */,
 				8F4DBCDF1C81E3F10048988C /* StoreTableViewController.m in Sources */,

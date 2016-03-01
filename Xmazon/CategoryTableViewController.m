@@ -24,6 +24,22 @@
 
 
 // MARK: - IBActions
+-(IBAction)showOptions:(UIButton*) sender {
+    UIAlertController* alertController = [UIAlertController alertControllerWithTitle:@"Options" message:@"Que souhaitez-vous faire ?" preferredStyle:UIAlertControllerStyleActionSheet];
+    UIAlertAction* search = [UIAlertAction actionWithTitle:@"Faire une recherche" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {
+        [self searchButtonTapped];
+    }];
+    UIAlertAction* cart = [UIAlertAction actionWithTitle:@"Afficher le panier" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {
+        PanierTableViewController* inscriptionVC = [[PanierTableViewController alloc] init];
+        [self.navigationController modalTransitionStyle];
+        [self.navigationController pushViewController:inscriptionVC animated:YES];
+    }];
+    UIAlertAction* cancel = [UIAlertAction actionWithTitle:@"Annuler" style:UIAlertActionStyleDestructive handler:nil];
+    [alertController addAction:search];
+    [alertController addAction:cart];
+    [alertController addAction:cancel];
+    [self presentViewController:alertController animated:YES completion:nil];
+}
 
 
 //MARK: - Méthodes de base
@@ -38,6 +54,10 @@
     
     [self getCategoryList:self.storeUid];
     self.categories = [[NSMutableArray alloc] init];
+    
+    UIBarButtonItem* optionsButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ellipsis"] style:UIBarButtonItemStylePlain target:self action:@selector(showOptions:)];
+    self.navigationItem.rightBarButtonItem = optionsButton;
+    
     self.navigationItem.title = self.storeName;
 }
 
@@ -84,6 +104,7 @@ static NSString* const kCellReuseIdentifier = @"CategoryCell";
     // Pass the selected object to the new view controller.
     detailViewController.catName = [[self.categories objectAtIndex:indexPath.row] valueForKey:@"name"];
     detailViewController.catUid = [[self.categories objectAtIndex:indexPath.row] valueForKey:@"uid"];
+    detailViewController.products = nil;
     
     // Push the view controller.
     [self.navigationController pushViewController:detailViewController animated:YES];
@@ -152,6 +173,77 @@ static NSString* const kCellReuseIdentifier = @"CategoryCell";
     } else {
         [API getAppToken];
         [API getStoreList];
+    }
+}
+
+- (void) searchButtonTapped {
+    UIAlertController* alertController = [UIAlertController alertControllerWithTitle:@"Rechercher" message:@"Rechercher un produit" preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField* textField) {
+        textField.placeholder = @"Recherche";
+    }];
+    UIAlertAction* action = [UIAlertAction actionWithTitle:@"Rechercher" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {
+        NSLog(@"Recherche : %@", [alertController.textFields objectAtIndex:0].text);
+        [self getProductListByResearch:[alertController.textFields objectAtIndex:0].text];
+    }];
+    UIAlertAction* cancel = [UIAlertAction actionWithTitle:@"Annuler" style:UIAlertActionStyleDestructive handler:nil];
+    [alertController addAction:action];
+    [alertController addAction:cancel];
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void) getProductListByResearch:(NSString*)research {
+    __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession* session = [NSURLSession sessionWithConfiguration:config];
+    
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/product/list?search=%@", research]]];
+    request.HTTPMethod = @"GET";
+    
+    if ([userDefaults valueForKey:@"user_token_type"] && [userDefaults valueForKey:@"user_access_token"] && [userDefaults valueForKey:@"user_refresh_token"]) {
+        NSMutableDictionary* headers = [request.allHTTPHeaderFields mutableCopy];
+        NSString* authorization = [[NSString alloc] initWithFormat:@"%@ %@", [[userDefaults valueForKey:@"user_token_type"] capitalizedString], [userDefaults valueForKey:@"user_access_token"]];
+        [headers setObject:authorization forKey:@"Authorization"];
+        request.allHTTPHeaderFields = headers;
+        
+        [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+        
+        [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            //NSLog(@"ENTER ?");
+            if(!error) {
+                //NSLog(@"And Now ?");
+                NSLog(@"Response getProductList : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                
+                NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+                
+                if (error) {
+                    NSLog(@"%@", error);
+                } else if ([[jsonObjects valueForKey:@"error"] isEqualToString:@"invalid_token"]) {
+                    [API getUserToken];
+                    [self getProductListByResearch:research];
+                } else {
+                    NSLog(@"%@", jsonObjects);
+                    /*NSArray* result = [jsonObjects valueForKey:@"result"];
+                     
+                     if (result == nil || [result count] == 0) {
+                     NSLog(@"Rien");
+                     } else {
+                     for (int i = 0; i < result.count; i++) {
+                     [self.products addObject:[result objectAtIndex:i]];
+                     }
+                     
+                     dispatch_async(dispatch_get_main_queue(), ^() {
+                     [self.tableView reloadData];
+                     });
+                     }*/
+                }
+            } else {
+                //NSLog(@"HERE HERE : %@", error);
+            }
+        }] resume];
+    } else {
+        [API getUserToken];
+        [self getProductListByResearch:research];
     }
 }
 

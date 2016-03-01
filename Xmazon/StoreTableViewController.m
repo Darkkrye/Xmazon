@@ -37,17 +37,19 @@
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
--(IBAction)searchButtonTapped:(UIButton*) sender {
-    UIAlertController* alertController = [UIAlertController alertControllerWithTitle:@"Rechercher" message:@"Rechercher un produit" preferredStyle:UIAlertControllerStyleAlert];
-    [alertController addTextFieldWithConfigurationHandler:^(UITextField* textField) {
-        textField.placeholder = @"Recherche";
+-(IBAction)showOptions:(UIButton*) sender {
+    UIAlertController* alertController = [UIAlertController alertControllerWithTitle:@"Options" message:@"Que souhaitez-vous faire ?" preferredStyle:UIAlertControllerStyleActionSheet];
+    UIAlertAction* search = [UIAlertAction actionWithTitle:@"Faire une recherche" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {
+        [self searchButtonTapped];
     }];
-    UIAlertAction* action = [UIAlertAction actionWithTitle:@"Rechercher" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {
-        NSLog(@"Recherche : %@", [alertController.textFields objectAtIndex:0].text);
-        [self getProductListByResearch:[alertController.textFields objectAtIndex:0].text];
+    UIAlertAction* cart = [UIAlertAction actionWithTitle:@"Afficher le panier" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {
+        PanierTableViewController* inscriptionVC = [[PanierTableViewController alloc] init];
+        [self.navigationController modalTransitionStyle];
+        [self.navigationController pushViewController:inscriptionVC animated:YES];
     }];
     UIAlertAction* cancel = [UIAlertAction actionWithTitle:@"Annuler" style:UIAlertActionStyleDestructive handler:nil];
-    [alertController addAction:action];
+    [alertController addAction:search];
+    [alertController addAction:cart];
     [alertController addAction:cancel];
     [self presentViewController:alertController animated:YES completion:nil];
 }
@@ -130,13 +132,10 @@ static NSString* const kCellReuseIdentifier = @"StoreCell";
                                       target:self
                                       action:@selector(logOutButtonTapped:)];
         
-        UIBarButtonItem* searchButton = [[UIBarButtonItem alloc]
-                                         initWithBarButtonSystemItem:UIBarButtonSystemItemSearch
-                                         target:self
-                                         action:@selector(searchButtonTapped:)];
+        UIBarButtonItem* optionsButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ellipsis"] style:UIBarButtonItemStylePlain target:self action:@selector(showOptions:)];
         
         self.navigationItem.leftBarButtonItem = logButton;
-        self.navigationItem.rightBarButtonItem = searchButton;
+        self.navigationItem.rightBarButtonItem = optionsButton;
         self.navigationItem.title = @"Xmazon";
     } else {
         [API getAppToken];
@@ -204,13 +203,24 @@ static NSString* const kCellReuseIdentifier = @"StoreCell";
     }
 }
 
-- (void) getProductListByResearch:(NSString*)research {
+- (void) getProductListByResearch:(NSString*)research andLimit:(NSString*)pLimit andOffset:(NSString*)pOffset {
     __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     NSURLSession* session = [NSURLSession sessionWithConfiguration:config];
     
-    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/product/list?search=%@", research]]];
+    NSURL* url;
+    if ([pLimit isEqualToString:@""] && [pOffset isEqualToString:@""]) {
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/product/list?search=%@&offset=%@", research, pOffset]];
+    } else if ([pOffset isEqualToString:@""]) {
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/product/list?search=%@&limit=%@", research, pLimit]];
+    } else if ([pLimit isEqualToString:@""]) {
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/product/list?search=%@&offset=%@", research, pOffset]];
+    } else {
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/product/list?search=%@&limit=%@&offset=%@", research, pLimit, pOffset]];
+    }
+    
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:url];
     request.HTTPMethod = @"GET";
     
     if ([userDefaults valueForKey:@"user_token_type"] && [userDefaults valueForKey:@"user_access_token"] && [userDefaults valueForKey:@"user_refresh_token"]) {
@@ -233,7 +243,7 @@ static NSString* const kCellReuseIdentifier = @"StoreCell";
                     NSLog(@"%@", error);
                 } else if ([[jsonObjects valueForKey:@"error"] isEqualToString:@"invalid_token"]) {
                     [API getUserToken];
-                    [self getProductListByResearch:research];
+                    [self getProductListByResearch:research andLimit:pLimit andOffset:pOffset];
                 } else {
                     NSLog(@"%@", jsonObjects);
                     /*NSArray* result = [jsonObjects valueForKey:@"result"];
@@ -256,8 +266,31 @@ static NSString* const kCellReuseIdentifier = @"StoreCell";
         }] resume];
     } else {
         [API getUserToken];
-        [self getProductListByResearch:research];
+        [self getProductListByResearch:research andLimit:pLimit andOffset:pOffset];
     }
+}
+
+- (void) searchButtonTapped {
+    UIAlertController* alertController = [UIAlertController alertControllerWithTitle:@"Rechercher" message:@"Rechercher un produit" preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField* textField) {
+        textField.placeholder = @"Recherche";
+    }];
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField* textField) {
+        textField.placeholder = @"Limit";
+        [textField setKeyboardType:UIKeyboardTypeNumberPad];
+    }];
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField* textField) {
+        textField.placeholder = @"Offset";
+        [textField setKeyboardType:UIKeyboardTypeNumberPad];
+    }];
+    UIAlertAction* action = [UIAlertAction actionWithTitle:@"Rechercher" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {
+        NSLog(@"Recherche : %@", [alertController.textFields objectAtIndex:0].text);
+        [self getProductListByResearch:[alertController.textFields objectAtIndex:0].text andLimit:[alertController.textFields objectAtIndex:1].text andOffset:[alertController.textFields objectAtIndex:2].text];
+    }];
+    UIAlertAction* cancel = [UIAlertAction actionWithTitle:@"Annuler" style:UIAlertActionStyleDestructive handler:nil];
+    [alertController addAction:action];
+    [alertController addAction:cancel];
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 /*

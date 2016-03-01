@@ -35,6 +35,29 @@
     [self addToCartWithProductId:[[self.products objectAtIndex:button.tag] valueForKey:@"uid"] andQuantity:1];
 }
 
+- (IBAction)addToCartDisabled:(id)sender {
+    UIAlertController * alert=   [UIAlertController
+                                  alertControllerWithTitle:@"ERREUR"
+                                  message:@"Vous avez déjà mis cet article dans votre panier !"
+                                  preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* okButton = [UIAlertAction
+                               actionWithTitle:@"Ok !"
+                               style:UIAlertActionStyleDefault
+                               handler:nil];
+    
+    UIAlertAction* cart = [UIAlertAction actionWithTitle:@"Voir Panier" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {
+        PanierTableViewController* inscriptionVC = [[PanierTableViewController alloc] init];
+        //[self.navigationController modalTransitionStyle];
+        [self.navigationController pushViewController:inscriptionVC animated:YES];
+    }];
+    
+    [alert addAction:okButton];
+    [alert addAction:cart];
+    
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
 - (IBAction)addToCartLongPress:(id)sender {
     UIGestureRecognizer *recognizer = (UIGestureRecognizer*) sender;
     self.returned = YES;
@@ -45,6 +68,23 @@
     PanierTableViewController* inscriptionVC = [[PanierTableViewController alloc] init];
     [self.navigationController modalTransitionStyle];
     [self.navigationController pushViewController:inscriptionVC animated:YES];
+}
+
+-(IBAction)showOptions:(UIButton*) sender {
+    UIAlertController* alertController = [UIAlertController alertControllerWithTitle:@"Options" message:@"Que souhaitez-vous faire ?" preferredStyle:UIAlertControllerStyleActionSheet];
+    UIAlertAction* search = [UIAlertAction actionWithTitle:@"Faire une recherche" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {
+        [self searchButtonTapped];
+    }];
+    UIAlertAction* cart = [UIAlertAction actionWithTitle:@"Afficher le panier" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {
+        PanierTableViewController* inscriptionVC = [[PanierTableViewController alloc] init];
+        [self.navigationController modalTransitionStyle];
+        [self.navigationController pushViewController:inscriptionVC animated:YES];
+    }];
+    UIAlertAction* cancel = [UIAlertAction actionWithTitle:@"Annuler" style:UIAlertActionStyleDestructive handler:nil];
+    [alertController addAction:search];
+    [alertController addAction:cart];
+    [alertController addAction:cancel];
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 
@@ -65,12 +105,15 @@
     
     self.navigationItem.title = self.catName;
     
-    UIBarButtonItem* cartButton = [[UIBarButtonItem alloc]
-                                     initWithBarButtonSystemItem:UIBarButtonSystemItemBookmarks
-                                     target:self
-                                     action:@selector(cartButtonTapped:)];
+    UIBarButtonItem* optionsButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ellipsis"] style:UIBarButtonItemStylePlain target:self action:@selector(showOptions:)];
+    self.navigationItem.rightBarButtonItem = optionsButton;
     
-    self.navigationItem.rightBarButtonItem = cartButton;
+    self.refreshControl = [[UIRefreshControl alloc] init];
+    self.refreshControl.backgroundColor = [UIColor grayColor];
+    self.refreshControl.tintColor = [UIColor whiteColor];
+    [self.refreshControl addTarget:self
+                            action:@selector(refreshTableView)
+                  forControlEvents:UIControlEventValueChanged];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -80,7 +123,28 @@
 
 #pragma mark - Table view data source
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 1;
+    if (self.products != nil) {
+        
+        self.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+        return 1;
+        
+    } else {
+        
+        // Display a message when the table is empty
+        UILabel *messageLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
+        
+        messageLabel.text = @"Une erreur de connexion est survenue ou aucun article n'est disponible dans cette categorie.\nTirez pour rafraichir.";
+        messageLabel.textColor = [UIColor blackColor];
+        messageLabel.numberOfLines = 0;
+        messageLabel.textAlignment = NSTextAlignmentCenter;
+        messageLabel.font = [UIFont fontWithName:@"Palatino-Italic" size:20];
+        [messageLabel sizeToFit];
+        
+        self.tableView.backgroundView = messageLabel;
+        self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    }
+    
+    return 0;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -108,16 +172,23 @@ static NSString* const kCellReuseIdentifier = @"ProductCell";
     
     BOOL exists = NO;
     Cart* cart = [API getCart];
-    for (int i = 0; i < [API getCart].products.count; i++) {
-        if ([[[[API getCart].products objectAtIndex:i] valueForKey:@"uid"] isEqualToString:cell.textLabel.text]) {
+    for (int i = 0; i < cart.products.count; i++) {
+        if ([[cart.products objectAtIndex:i].name isEqualToString:cell.textLabel.text]) {
             exists = YES;
             break;
         }
     }
     
-    if (!exists) {
-        if ([[[self.products objectAtIndex:indexPath.row] valueForKey:@"available"] boolValue] == YES) {
-            UIButton *button = [[UIButton alloc] init];
+    if ([[[self.products objectAtIndex:indexPath.row] valueForKey:@"available"] boolValue] == YES) {
+        UIButton *button = [[UIButton alloc] init];
+        if (exists) {
+            [button addTarget:self
+                       action:@selector(addToCartDisabled:)
+             forControlEvents:UIControlEventTouchUpInside];
+            [button setImage:[UIImage imageNamed:@"add-to-cart-disabled"] forState:UIControlStateNormal];
+            [button setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+            [button setTag:indexPath.row];
+        } else {
             [button addTarget:self
                        action:@selector(addToCart:)
              forControlEvents:UIControlEventTouchUpInside];
@@ -127,41 +198,41 @@ static NSString* const kCellReuseIdentifier = @"ProductCell";
             
             UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(addToCartLongPress:)];
             [button addGestureRecognizer:longPress];
-            
-            if([[UIDevice currentDevice]userInterfaceIdiom]==UIUserInterfaceIdiomPhone)
-            {
-                if ([[UIScreen mainScreen] bounds].size.width >= 375)
-                {
-                    button.frame = CGRectMake(300, 0, 40.0, 40.0);
-                }
-                else
-                {
-                    button.frame = CGRectMake(270, 0, 40.0, 40.0);
-                }
-            }
-            
-            button.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
-            [cell.contentView addSubview:button];
-        } else {
-            
-            UILabel* label = [[UILabel alloc] init];
-            [label setText:@"Indisponible"];
-            [label setTextColor:[UIColor grayColor]];
-            
-            if([[UIDevice currentDevice]userInterfaceIdiom]==UIUserInterfaceIdiomPhone)
-            {
-                if ([[UIScreen mainScreen] bounds].size.width >= 375)
-                {
-                    label.frame = CGRectMake(270, 0, 100.0, 40.0);
-                }
-                else
-                {
-                    label.frame = CGRectMake(220, 0, 100.0, 40.0);
-                }
-            }
-            
-            [cell.contentView addSubview:label];
         }
+        
+        if([[UIDevice currentDevice]userInterfaceIdiom]==UIUserInterfaceIdiomPhone)
+        {
+            if ([[UIScreen mainScreen] bounds].size.width >= 375)
+            {
+                button.frame = CGRectMake(300, 0, 40.0, 40.0);
+            }
+            else
+            {
+                button.frame = CGRectMake(270, 0, 40.0, 40.0);
+            }
+        }
+        
+        button.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+        [cell.contentView addSubview:button];
+    } else {
+        
+        UILabel* label = [[UILabel alloc] init];
+        [label setText:@"Indisponible"];
+        [label setTextColor:[UIColor grayColor]];
+        
+        if([[UIDevice currentDevice]userInterfaceIdiom]==UIUserInterfaceIdiomPhone)
+        {
+            if ([[UIScreen mainScreen] bounds].size.width >= 375)
+            {
+                label.frame = CGRectMake(270, 0, 100.0, 40.0);
+            }
+            else
+            {
+                label.frame = CGRectMake(220, 0, 100.0, 40.0);
+            }
+        }
+        
+        [cell.contentView addSubview:label];
     }
     
     return cell;
@@ -203,6 +274,8 @@ static NSString* const kCellReuseIdentifier = @"ProductCell";
                     
                     if (result == nil || [result count] == 0) {
                         NSLog(@"Rien");
+                        self.products = nil;
+                        [self.tableView reloadData];
                     } else {
                         for (int i = 0; i < result.count; i++) {
                             [self.products addObject:[result objectAtIndex:i]];
@@ -266,22 +339,35 @@ static NSString* const kCellReuseIdentifier = @"ProductCell";
                         [self addToCartWithProductId:productID andQuantity:quantity];
                     } else {
                         NSMutableArray<NSDictionary*>* productsCart = [[jsonObjects valueForKey:@"result"] valueForKey:@"products_cart"];
+                        Cart* cart = [[Cart alloc] init];
+                        [API setCart:cart];
                         for (int i = 0; i < productsCart.count; i++) {
                             Product* produit = [[Product alloc] init];
                             if ([[productsCart objectAtIndex:i] valueForKey:@"uid"]) {
                                 produit.uidProductCart = [[productsCart objectAtIndex:i] valueForKey:@"uid"];
-                            } else if ([[productsCart objectAtIndex:i] valueForKey:@"quantity"]) {
+                            }
+                            
+                            if ([[productsCart objectAtIndex:i] valueForKey:@"quantity"]) {
                                 produit.quantity = [[productsCart objectAtIndex:i] valueForKey:@"quantity"];
-                            } else if ([[productsCart objectAtIndex:i] valueForKey:@"product"]) {
-                                produit.available = [[[productsCart objectAtIndex:i] valueForKey:@"product"] boolForKey:@"available"];
+                            }
+                            
+                            if ([[productsCart objectAtIndex:i] valueForKey:@"product"]) {
+                                produit.available = [[[[productsCart objectAtIndex:i] valueForKey:@"product"] valueForKey:@"available"] boolValue];
                                 produit.name = [[[productsCart objectAtIndex:i] valueForKey:@"product"] valueForKey:@"name"];
                                 produit.price = (NSNumber*)[[[productsCart objectAtIndex:i] valueForKey:@"product"] valueForKey:@"price"];
                                 produit.uid = [[[productsCart objectAtIndex:i] valueForKey:@"product"] valueForKey:@"uid"];
                             }
                             
                             [[API getCart].products addObject:produit];
+                            [API getCart].totalPrice = [API getCart].totalPrice + [produit.price floatValue] * [produit.quantity intValue];
                         }
+                        
+                        [[API getCart] saveCart];
                     }
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^() {
+                        [self.tableView reloadData];
+                    });
                 }
             } else {
                 //NSLog(@"HERE HERE : %@", error);
@@ -320,6 +406,95 @@ static NSString* const kCellReuseIdentifier = @"ProductCell";
     [alertController addAction:action];
     [alertController addAction:cancel];
     [self presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void) searchButtonTapped {
+    UIAlertController* alertController = [UIAlertController alertControllerWithTitle:@"Rechercher" message:@"Rechercher un produit" preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField* textField) {
+        textField.placeholder = @"Recherche";
+    }];
+    UIAlertAction* action = [UIAlertAction actionWithTitle:@"Rechercher" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {
+        NSLog(@"Recherche : %@", [alertController.textFields objectAtIndex:0].text);
+        [self getProductListByResearch:[alertController.textFields objectAtIndex:0].text];
+    }];
+    UIAlertAction* cancel = [UIAlertAction actionWithTitle:@"Annuler" style:UIAlertActionStyleDestructive handler:nil];
+    [alertController addAction:action];
+    [alertController addAction:cancel];
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void) getProductListByResearch:(NSString*)research {
+    __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession* session = [NSURLSession sessionWithConfiguration:config];
+    
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/product/list?search=%@", research]]];
+    request.HTTPMethod = @"GET";
+    
+    if ([userDefaults valueForKey:@"user_token_type"] && [userDefaults valueForKey:@"user_access_token"] && [userDefaults valueForKey:@"user_refresh_token"]) {
+        NSMutableDictionary* headers = [request.allHTTPHeaderFields mutableCopy];
+        NSString* authorization = [[NSString alloc] initWithFormat:@"%@ %@", [[userDefaults valueForKey:@"user_token_type"] capitalizedString], [userDefaults valueForKey:@"user_access_token"]];
+        [headers setObject:authorization forKey:@"Authorization"];
+        request.allHTTPHeaderFields = headers;
+        
+        [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+        
+        [[session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            //NSLog(@"ENTER ?");
+            if(!error) {
+                //NSLog(@"And Now ?");
+                NSLog(@"Response getProductList : %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                
+                NSMutableDictionary* jsonObjects = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+                
+                if (error) {
+                    NSLog(@"%@", error);
+                } else if ([[jsonObjects valueForKey:@"error"] isEqualToString:@"invalid_token"]) {
+                    [API getUserToken];
+                    [self getProductListByResearch:research];
+                } else {
+                    NSLog(@"%@", jsonObjects);
+                    /*NSArray* result = [jsonObjects valueForKey:@"result"];
+                     
+                     if (result == nil || [result count] == 0) {
+                     NSLog(@"Rien");
+                     } else {
+                     for (int i = 0; i < result.count; i++) {
+                     [self.products addObject:[result objectAtIndex:i]];
+                     }
+                     
+                     dispatch_async(dispatch_get_main_queue(), ^() {
+                     [self.tableView reloadData];
+                     });
+                     }*/
+                }
+            } else {
+                //NSLog(@"HERE HERE : %@", error);
+            }
+        }] resume];
+    } else {
+        [API getUserToken];
+        [self getProductListByResearch:research];
+    }
+}
+
+- (void) refreshTableView {
+    [self.tableView reloadData];
+    
+    // End the refreshing
+    if (self.refreshControl) {
+        
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        [formatter setDateFormat:@"d MMM H:mm"];
+        NSString *title = [NSString stringWithFormat:@"Dernière MAJ : %@", [formatter stringFromDate:[NSDate date]]];
+        NSDictionary *attrsDictionary = [NSDictionary dictionaryWithObject:[UIColor whiteColor]
+                                                                    forKey:NSForegroundColorAttributeName];
+        NSAttributedString *attributedTitle = [[NSAttributedString alloc] initWithString:title attributes:attrsDictionary];
+        self.refreshControl.attributedTitle = attributedTitle;
+        
+        [self.refreshControl endRefreshing];
+    }
 }
 
 /*

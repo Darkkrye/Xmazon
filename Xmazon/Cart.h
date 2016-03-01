@@ -11,10 +11,15 @@
 
 @interface Cart : NSObject {
     NSMutableArray<Product*>* products_;
-    NSNumber* totalPrice_;
+    float totalPrice_;
 }
 
 @property (strong, nonatomic) NSMutableArray<Product*>* products;
-@property (strong, nonatomic) NSNumber* totalPrice;
+@property (assign, nonatomic) float totalPrice;
+
+- (instancetype) initWithCart:(Cart*)pCart;
+- (NSMutableDictionary*) toDictionary;
+- (void) saveCart;
++ (Cart*) retrieveCart;
 
 @end

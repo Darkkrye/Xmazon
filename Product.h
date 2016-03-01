@@ -26,4 +26,6 @@
 
 - (instancetype) initWithAvailability:(NSString*) pAvailable andName:(NSString*)pName andPrice:(NSString*)pPrice andUid:(NSString*)pUid andQuantity:(NSString*)pQuantity andUidProductCart:(NSString*)pUidProductCart;
 
+- (NSMutableDictionary*) toDictionary;
+
 @end

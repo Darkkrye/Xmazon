@@ -38,4 +38,18 @@
     return self;
 }
 
+- (NSMutableDictionary*) toDictionary {
+    NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
+    
+    NSString * booleanString = (self.available) ? @"1" : @"0";
+    [dict setValue:booleanString forKey:@"available"];
+    [dict setValue:self.name forKey:@"name"];
+    [dict setValue:self.price forKey:@"price"];
+    [dict setValue:self.uid forKey:@"uid"];
+    [dict setValue:self.quantity forKey:@"quantity"];
+    [dict setValue:self.uidProductCart forKey:@"uidProductCart"];
+    
+    return dict;
+}
+
 @end

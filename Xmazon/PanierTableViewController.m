@@ -39,15 +39,29 @@
     return [API getCart].products.count;
 }
 
-/*
+static NSString* const kCellReuseIdentifier = @"PanierCell";
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:<#@"reuseIdentifier"#> forIndexPath:indexPath];
+    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:kCellReuseIdentifier];
     
-    // Configure the cell...
+    if (!cell) {
+        //NSLog(@"CREATE Cell");
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:kCellReuseIdentifier];
+    } else {
+        //NSLog(@"REUSE Cell");
+    }
+    
+    Cart* cart = [API getCart];
+    float totalPrice = [[cart.products objectAtIndex:indexPath.row].price floatValue] * [[cart.products objectAtIndex:indexPath.row].quantity intValue];
+    cell.textLabel.text = [NSString stringWithFormat:@"%@ - %.2f €", [cart.products objectAtIndex:indexPath.row].name, totalPrice];
+    cell.detailTextLabel.text = [NSString stringWithFormat:@"Quantité : %@", [cart.products objectAtIndex:indexPath.row].quantity];
+    
+    /*NSNumberFormatter *fmt = [[NSNumberFormatter alloc] init];
+    [fmt setPositiveFormat:@"0.##"];
+    NSNumber* price = [[self.products objectAtIndex:indexPath.row] valueForKey:@"price"];
+    cell.detailTextLabel.text = [NSString stringWithFormat:@"%@ €", [fmt stringFromNumber:price]];*/
     
     return cell;
 }
-*/
 
 /*
 // Override to support conditional editing of the table view.

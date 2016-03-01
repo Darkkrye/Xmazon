@@ -20,6 +20,10 @@ static Cart* cart;
     return  cart;
 }
 
++ (void) setCart:(Cart*)pCart {
+    cart = pCart;
+}
+
 + (void) getAppToken {
     __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     

@@ -15,6 +15,7 @@
 @interface API : NSObject
 
 + (Cart*) getCart;
++ (void) setCart:(Cart*)pCart;
 
 + (void) getAppToken;
 + (void) getStoreList;
