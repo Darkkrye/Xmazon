@@ -7,13 +7,20 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "Constants.h"
+#import "AppDelegate.h"
+#import "Cart.h"
 
 @interface API : NSObject
 
-+ (BOOL) getAppToken;
-+ (BOOL) getUserToken;
++ (Cart*) getCart;
++ (void) setCart:(Cart*)pCart;
 
-+ (BOOL) subscribeUser;
++ (void) getAppToken;
++ (void) getStoreList;
++ (void) getCategoryListWithStoreUID:(NSString*)storeUID;
++ (void) refreshUserToken;
++ (void) getUserToken;
 
 @end
