@@ -181,9 +181,17 @@ static NSString* const kCellReuseIdentifier = @"CategoryCell";
     [alertController addTextFieldWithConfigurationHandler:^(UITextField* textField) {
         textField.placeholder = @"Recherche";
     }];
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField* textField) {
+        textField.placeholder = @"Limit";
+        [textField setKeyboardType:UIKeyboardTypeNumberPad];
+    }];
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField* textField) {
+        textField.placeholder = @"Offset";
+        [textField setKeyboardType:UIKeyboardTypeNumberPad];
+    }];
     UIAlertAction* action = [UIAlertAction actionWithTitle:@"Rechercher" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {
         NSLog(@"Recherche : %@", [alertController.textFields objectAtIndex:0].text);
-        [self getProductListByResearch:[alertController.textFields objectAtIndex:0].text];
+        [self getProductListByResearch:[alertController.textFields objectAtIndex:0].text andLimit:[alertController.textFields objectAtIndex:1].text andOffset:[alertController.textFields objectAtIndex:2].text];
     }];
     UIAlertAction* cancel = [UIAlertAction actionWithTitle:@"Annuler" style:UIAlertActionStyleDestructive handler:nil];
     [alertController addAction:action];
@@ -191,13 +199,24 @@ static NSString* const kCellReuseIdentifier = @"CategoryCell";
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
-- (void) getProductListByResearch:(NSString*)research {
+- (void) getProductListByResearch:(NSString*)research andLimit:(NSString*)pLimit andOffset:(NSString*)pOffset {
     __block NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     NSURLSession* session = [NSURLSession sessionWithConfiguration:config];
     
-    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/product/list?search=%@", research]]];
+    NSURL* url;
+    if ([pLimit isEqualToString:@""] && [pOffset isEqualToString:@""]) {
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/product/list?search=%@&offset=%@", research, pOffset]];
+    } else if ([pOffset isEqualToString:@""]) {
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/product/list?search=%@&limit=%@", research, pLimit]];
+    } else if ([pLimit isEqualToString:@""]) {
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/product/list?search=%@&offset=%@", research, pOffset]];
+    } else {
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"http://xmazon.appspaces.fr/product/list?search=%@&limit=%@&offset=%@", research, pLimit, pOffset]];
+    }
+    
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:url];
     request.HTTPMethod = @"GET";
     
     if ([userDefaults valueForKey:@"user_token_type"] && [userDefaults valueForKey:@"user_access_token"] && [userDefaults valueForKey:@"user_refresh_token"]) {
@@ -220,7 +239,7 @@ static NSString* const kCellReuseIdentifier = @"CategoryCell";
                     NSLog(@"%@", error);
                 } else if ([[jsonObjects valueForKey:@"error"] isEqualToString:@"invalid_token"]) {
                     [API getUserToken];
-                    [self getProductListByResearch:research];
+                    [self getProductListByResearch:research andLimit:pLimit andOffset:pOffset];
                 } else {
                     NSLog(@"%@", jsonObjects);
                     /*NSArray* result = [jsonObjects valueForKey:@"result"];
@@ -243,7 +262,7 @@ static NSString* const kCellReuseIdentifier = @"CategoryCell";
         }] resume];
     } else {
         [API getUserToken];
-        [self getProductListByResearch:research];
+        [self getProductListByResearch:research andLimit:pLimit andOffset:pOffset];
     }
 }
 
