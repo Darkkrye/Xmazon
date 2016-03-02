@@ -36,11 +36,12 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [API getCart].products.count;
+    return [API getCart].products.count + 1;
 }
 
 static NSString* const kCellReuseIdentifier = @"PanierCell";
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
     UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:kCellReuseIdentifier];
     
     if (!cell) {
@@ -51,9 +52,16 @@ static NSString* const kCellReuseIdentifier = @"PanierCell";
     }
     
     Cart* cart = [API getCart];
-    float totalPrice = [[cart.products objectAtIndex:indexPath.row].price floatValue] * [[cart.products objectAtIndex:indexPath.row].quantity intValue];
-    cell.textLabel.text = [NSString stringWithFormat:@"%@ - %.2f €", [cart.products objectAtIndex:indexPath.row].name, totalPrice];
-    cell.detailTextLabel.text = [NSString stringWithFormat:@"Quantité : %@", [cart.products objectAtIndex:indexPath.row].quantity];
+    
+    if (indexPath.row == [API getCart].products.count) {
+        cell.textLabel.text = [NSString stringWithFormat:@"Prix total : %.2f €", [API getCart].totalPrice];
+    } else {
+        float totalPrice = [[cart.products objectAtIndex:indexPath.row].price floatValue] * [[cart.products objectAtIndex:indexPath.row].quantity intValue];
+        cell.textLabel.text = [NSString stringWithFormat:@"%@ - %.2f €", [cart.products objectAtIndex:indexPath.row].name, totalPrice];
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"Quantité : %@", [cart.products objectAtIndex:indexPath.row].quantity];
+    }
+    
+    
     
     /*NSNumberFormatter *fmt = [[NSNumberFormatter alloc] init];
     [fmt setPositiveFormat:@"0.##"];
